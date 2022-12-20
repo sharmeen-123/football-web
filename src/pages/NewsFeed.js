@@ -21,7 +21,7 @@ export default function NewsFeed() {
 
           {/* center Post */}
           <div className=" w-full overflow-y-scroll scrollbar mt-10">
-            <UploadPostOntimeline />
+            <UploadPostOntimeline newsfeed = {true}/>
             <TimelinePost />
           </div>
 

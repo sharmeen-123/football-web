@@ -8,7 +8,7 @@ export default function Header(props) {
       <div class=" p-5 ml-4 mb-1 ">
         <div class=" flex flex-wrap justify-between items-center  ">
           <div class="flex items-center">
-            <span class="self-center text-3xl font-semibold whitespace-nowrap dark:text-white font-satoshi text-white" id="head">
+            <span class="self-center text-3xl font-semibold whitespace-nowrap dark:text-white text-white" id="head">
               <h1>{props.title}</h1>
             </span>
             {props.viewlist === true ? (

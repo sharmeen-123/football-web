@@ -17,13 +17,13 @@ export default function Playerprofile() {
           </div>
 
           {/* center Post */}
-          <div className=" w-full mt-7 ">
+          <div className=" border-[#7E7E7E] w-full mt-7 ">
             <PlayerProfileCenterBox />
           </div>
 
           {/* right side-bar parent profile */}
 
-          <div className=" mr-5 mt-2 w-4/12">
+          <div className=" border-[#7E7E7E] mr-5 mt-2 w-4/12">
             <PlayerProfileRightSidebar />
           </div>
         </div>

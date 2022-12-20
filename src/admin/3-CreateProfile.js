@@ -3,14 +3,31 @@ import Header from "../Components/Header";
 import "../styles/font.css"
 import "../styles/font.css"
 import SidebarCreatePlayer from "../Components/sideBarCreatePlayer";
+import axios from "axios";
 
-
+const api = axios.create({
+  baseURL : 'http://localhost:8000/player'
+});
 
 
 export default function AddItems() {
 
   const [openAddsubcatmodal, setopenAddsubcatmodal] = useState(false);
-  const [opendeletemodal, setopendeletemodal] = useState(false);
+  const [image, setImage] = useState("");
+  const [email, setEmail] = useState(false);
+  const [fatherEmail, setFatherEmail] = useState(false);
+  const [position, setPosition] = useState(false);
+  const [DateOfBirth, setDOB] = useState(false);
+  const [name, setName] = useState(false);
+  const [phone, setPhone] = useState(false);
+  const [url, setUrl] = useState(false);
+  const [error, setError] = useState(false);
+  const isPlayer = false;
+  
+  var today = new Date();
+  let date = today. getDate() + '-' + parseInt(today. getMonth() + 1) + '-' + today. getFullYear();
+  
+
 
   const hiddenFileInput = React.useRef(null);
 
@@ -18,8 +35,59 @@ export default function AddItems() {
     hiddenFileInput.current.click();
   };
   const handleChange = (event) => {
-    const fileUploaded = event.target.files[0];
+    setImage(event.target.files[0]);
+    img();
+   
   };
+  const img = () => {
+    const data = new FormData();
+    data.append("file", image);
+    data.append("upload_preset","player_image");
+    //data.append("cloud_name","dyapmvalo");
+    axios.post("https://api.cloudinary.com/v1_1/dyapmvalo/image/upload", data)
+    .then((res) => {
+      setUrl(res.data.url)
+    })
+    .catch((err) => {
+      console.log(err)
+    });
+  }
+  const handleNameChange = (event) => {
+    // 👇 Get input value from "event"
+    setName(event.target.value);
+  };
+  const handlePositionChange = (event) => {
+    // 👇 Get input value from "event"
+    setPosition(event.target.value);
+  };
+  const handleEmailChange = (event) => {
+    // 👇 Get input value from "event"
+    setEmail(event.target.value);
+  };
+  const handleDOBChange = (event) => {
+    // 👇 Get input value from "event"
+    setDOB(event.target.value);
+  };
+  const handleFatherEmailChange = (event) => {
+    // 👇 Get input value from "event"
+    setFatherEmail(event.target.value);
+  };
+  const handlePhoneChange = (event) => {
+    // 👇 Get input value from "event"
+    setPhone(event.target.value);
+    console.log(date);
+  };
+  const createPlayer = async () => {
+    let res = await api.post('/addplayer', {email:email, dateOfBirth:DateOfBirth, position:position, fatherEmail:fatherEmail,
+                                              image:url, name:name, dateJoined:date, phone: phone, isPlayer: isPlayer})
+    .then (
+      setError(false)
+    )
+    .catch((error) => {
+        setError(error.response.data);
+        console.log(error);
+    })
+  }
 
 
   return (
@@ -42,21 +110,24 @@ export default function AddItems() {
         <div className="flex-1 mr-2">
                 <input
                 type="text"
-                class="bg-[#212121]   w-full m-4 text-white  text-sm py-4 px-5 block pl-10 p-2.5   border-gray-600 placeholder-gray-400  focus:ring-blue-500 focus:border-blue-500"
+                class="bg-[#212121] placeholder-lexend placeholder-sm  w-full m-4 text-white  text-sm py-4 px-5 block pl-10 p-2.5   border-gray-600 placeholder-gray-400  focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Player Name"
                 required=""
+                onChange={handleNameChange}
               />
               <input
                 type="text"
-                class="bg-[#212121]  w-full m-4 text-white  text-sm py-4 block pl-10 p-2.5   border-gray-600 placeholder-gray-400  focus:ring-blue-500 focus:border-blue-500"
+                class="bg-[#212121] placeholder-lexend placeholder-sm w-full m-4 text-white  text-sm py-4 block pl-10 p-2.5   border-gray-600 placeholder-gray-400  focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Position"
                 required=""
+                onChange={handlePositionChange}
               />
               <input
                 type="email"
-                class="bg-[#212121]  w-full m-4 text-white  text-sm py-4 px-5 block pl-10 p-2.5   border-gray-600 placeholder-gray-400  focus:ring-blue-500 focus:border-blue-500"
+                class="bg-[#212121] placeholder-lexend placeholder-sm w-full m-4 text-white  text-sm py-4 px-5 block pl-10 p-2.5   border-gray-600 placeholder-gray-400  focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Email"
                 required=""
+                onChange={handleEmailChange}
               />
 
 <div
@@ -84,6 +155,14 @@ export default function AddItems() {
                   style={{ display: "none" }}
                 />
               </div>
+              {error?(
+                <div>
+                <p className="text-white font-lexend text-sm p-3 text-center">{error}</p>
+                </div> 
+              ):(
+                <>
+                 </>
+              )}
             
               <div className="flex ml-4">
                 <div className="flex-1 ">
@@ -97,8 +176,9 @@ export default function AddItems() {
 
                 <div className="flex-1 ">
                 <button
-                  class="font-dm items-center text-white bg-green-500 m-4 w-full text-sm  py-2 focus:outline-none font-normal rounded-[4px]  text-center"
+                  class="font-dm items-center  text-white bg-green-500 m-4 w-full text-sm  py-2 focus:outline-none font-normal rounded-[4px]  text-center"
                   type="button"
+                  onClick={createPlayer}
                 >
                   Submit
                   </button>
@@ -116,21 +196,24 @@ export default function AddItems() {
                 <div className="flex-1 ml-2">
                 <input
                 type="email"
-                class="bg-[#212121] w-full m-4 text-white  text-sm py-4 px-5 block pl-10 p-2.5   border-gray-600 placeholder-gray-400  focus:ring-blue-500 focus:border-blue-500"
+                class="bg-[#212121] placeholder-lexend placeholder-sm w-full m-4 text-white  text-sm py-4 px-5 block pl-10 p-2.5   border-gray-600 placeholder-gray-400  focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Father's Email"
                 required=""
+                onChange={handleFatherEmailChange}
               />
               <input
                 type="text"
-                class="bg-[#212121] w-full m-4 text-white  text-sm py-4 px-5 block pl-10 p-2.5   border-gray-600 placeholder-gray-400  focus:ring-blue-500 focus:border-blue-500"
+                class="bg-[#212121] placeholder-lexend placeholder-sm w-full m-4 text-white  text-sm py-4 px-5 block pl-10 p-2.5   border-gray-600 placeholder-gray-400  focus:ring-blue-500 focus:border-blue-500"
                 placeholder="DOB"
                 required=""
+                onChange={handleDOBChange}
               />
               <input
                 type="phone"
-                class="bg-[#212121] w-full m-4 text-white  text-sm py-4 px-5 block pl-10 p-2.5   border-gray-600 placeholder-gray-400  focus:ring-blue-500 focus:border-blue-500"
+                class="bg-[#212121] placeholder-lexend placeholder-sm w-full m-4 text-white  text-sm py-4 px-5 block pl-10 p-2.5   border-gray-600 placeholder-gray-400  focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Phone Number"
                 required=""
+                onChange={handlePhoneChange}
               />
                 </div>
        
@@ -161,8 +244,8 @@ export default function AddItems() {
           </div>
 
           {/*skill cards */}
-          <div className=" xl:w-4/12">
-            <div className="ml-10 mr-10  2xl:grid 2xl:grid-cols-1 ">
+          <div className=" xl:w-4/12 border-[#7E7E7E]">
+            <div className="ml-10 mr-10 border-[#7E7E7E] 2xl:grid 2xl:grid-cols-1 ">
                 return <SidebarCreatePlayer />;
             </div>
           </div>

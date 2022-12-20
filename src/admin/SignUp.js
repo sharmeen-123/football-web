@@ -1,13 +1,27 @@
 import React, { useState,useContext } from "react";
 import "../styles/Login.css"
 import Hand from "../assets/Hand.png"
-import Login from "./Login";
 import { NavLink } from "react-router-dom";
-import { AuthContext } from "./ActiveUser"
+import { AuthContext } from "./ActiveUser";
+import axios from "axios";
+import GoogleLogin from "react-google-login";
+
+const api = axios.create({
+    baseURL : 'http://localhost:8000'
+});
 
 export default function SignUp() {
+    
+    const[name,setName]= useState(false);
+    const[email,setEmail]= useState(false);
+    const[pass,setPassword]= useState(false);
+    const[phone,setPhone]= useState(false);
+    const [error, setError] = useState(false);
+    const [link, setLink] = useState('');
+
     const { currentUser, setUser } = useContext(AuthContext);
     const [admin,setadmin] = useState(currentUser);
+    const isAdmin = false;
   
   const user = () => {
     setadmin(true);
@@ -17,12 +31,55 @@ export default function SignUp() {
   };
   const user2 = () => {
     setadmin(false);
-    setUser("coach");
-    
-    
-    
-    
+    setUser("coach");   
   };
+
+  const handleNameChange = (event) => {
+    // 👇 Get input value from "event"
+    setName(event.target.value);
+  };
+
+  const handleEmailChange = (event) => {
+    // 👇 Get input value from "event"
+    setEmail(event.target.value);
+  };
+
+  const handlePhoneChange = (event) => {
+    // 👇 Get input value from "event"
+    setPhone(event.target.value);
+  };
+  
+  const handlePasswordChange = (event) => {
+    // 👇 Get input value from "event"
+    setPassword(event.target.value);
+  };
+  const createAdmin = async () => {
+    if (admin === true){
+        let res = await api.post('/admin/register', {password:pass, name:name, email:email, phone:phone, isAdmin:isAdmin})
+    .then((response) =>{
+        setLink("/")
+        setError(false)
+    }
+    )
+    .catch((error) => {
+        setError(error.response.data);
+        setLink("")
+    })
+    }
+    else{
+        setLink("/")
+    }
+    
+  }
+
+  const handleFailure = (result) =>{
+    alert(result);
+  }
+
+  const handleLogin = (googleData) =>{
+    console.log(googleData);
+}
+  
 
   return (
     <div className="register">
@@ -83,8 +140,9 @@ export default function SignUp() {
                             <div className="flex-1">
                             <input 
                                 type={"text"} 
-                                className = {"text-white font-lexend text-sm p-3 rounded-lg border-none placeholder-white bg-[#212121]"}
-                                placeholder={"Enter your name"}/>
+                                className = {"text-white font-lexend text-sm p-3 rounded-lg border-none placeholder-[#7E7E7E]white bg-[#212121]"}
+                                placeholder={"Enter your name"}
+                                onChange={handleNameChange}/>
                             </div>
                             <div className="flex-1 grow-0 mr-4 mb-1">
                             <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -101,8 +159,9 @@ export default function SignUp() {
                             <div className="flex-1">
                             <input 
                                 type={"email"} 
-                                className = {"text-white font-lexend text-sm p-3 rounded-lg border-none placeholder-white bg-[#212121]"}
-                                placeholder={"Enter your email"}/>
+                                className = {"text-white font-lexend text-sm p-3 rounded-lg border-none placeholder-[#7E7E7E] bg-[#212121]"}
+                                placeholder={"Enter your email"}
+                                onChange={handleEmailChange}/>
                             </div>
                             <div className="flex-1 grow-0 mr-4 mb-1">
                             <svg width="19" height="15" viewBox="0 0 19 15" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -122,8 +181,9 @@ export default function SignUp() {
                             <div className="flex-1">
                             <input 
                                 type={"password"} 
-                                className = {"text-white font-lexend text-sm p-3 rounded-lg border-none placeholder-white bg-[#212121]"}
-                                placeholder={"Enter your password"}/>
+                                className = {"text-white font-lexend text-sm p-3 rounded-lg border-none placeholder-[#7E7E7E] bg-[#212121]"}
+                                placeholder={"Enter your password"}
+                                onChange={handlePasswordChange}/>
                             </div>
                             
                         </div>
@@ -138,8 +198,9 @@ export default function SignUp() {
                             <div className="flex-1">
                             <input 
                                 type={"phone"} 
-                                className = {"text-white font-lexend text-sm p-3 rounded-lg border-none placeholder-white bg-[#212121]"}
-                                placeholder={"Enter your phone number"}/>
+                                className = {"text-white font-lexend text-sm p-3 rounded-lg border-none placeholder-[#7E7E7E] bg-[#212121]"}
+                                placeholder={"Enter your phone number"}
+                                onChange={handlePhoneChange}/>
                             </div>
                             <div className="flex-1 grow-0 mr-4 mb-1">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -166,12 +227,35 @@ export default function SignUp() {
             <div className="flex">
                     <div className="flex-1"></div>
                     <div className="flex-1"></div>
-                    <div className="flex-1 p-2 pl-8 pr-8 mt-6">
-                        <NavLink to={"/"}>
-                        <button className="text-white rounded-lg font-lexend bg-[#1DB954] w-full text-sm  pt-4 pb-4">Register</button>
+                    {error?(
+                  <>
+                 <div className="flex-1 p-2 pl-8 pr-8 mt-6">
+                <div>
+                <p className="text-white font-lexend text-sm p-3 text-center">{error}</p>
+                </div>
+                <NavLink to="">
+                        <button className="text-white rounded-lg font-lexend bg-[#1DB954] w-full text-sm  pt-4 pb-4"
+                        onClick={createAdmin}>Register</button>   
                         </NavLink>
                     
                         </div>
+                  
+                 
+              </>
+              ):(
+                <>
+                 <div className="flex-1 p-2 pl-8 pr-8 mt-6">
+                        <NavLink to="/dashboard">
+                        <button className="text-white rounded-lg font-lexend bg-[#1DB954] w-full text-sm  pt-4 pb-4"
+                        onClick={createAdmin}>Register</button>
+                        </NavLink>
+                    
+                        </div>
+                
+                
+                 
+                 </>
+              )}
                 
                  
                  <div className="flex-1"></div>
@@ -222,7 +306,20 @@ export default function SignUp() {
                                         </svg>
 
                                     </div>
+                                    {/* <div>
+                                    <GoogleLogin
+                                    
+                                    clientId = {process.env.REACT_APP_GOOGLE_CLIENT_ID}
+                                    buttonText = "Continue with Google"
+                                    onSuccess = {handleLogin}
+                                    onFailure = {handleFailure}
+                                    cookiePlicy = {'single_host_origin'}
+                                    >
+                                            
+                                        </GoogleLogin>
+                                    </div> */}
                                     <div className="flex-1 w-45 p-2 pr-10 mt-2 ">
+                                        
                                         <p className="text-sm font-lexend text-white">Continue with Google</p>
                                     </div>
                                     </div>

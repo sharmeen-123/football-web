@@ -61,11 +61,19 @@ const CoachSideBarLayout = () => {
       };
 
 function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState("false");
+  const [currentUser, setCurrentUser] = useState(false);
+  const [id, setId] = useState(false);
+  const [group, setGroup] = useState(false);
   const  value = {
     setUser: setCurrentUser,
+    setActiveId : setId,
+    setActiveGroup : setGroup,
+    group : group,
+    id : id,
+    
   };
-  console.log(currentUser);
+  // console.log(currentUser);
+  // console.log(id);
   return(
     <>
      <AuthContext.Provider value={value}>

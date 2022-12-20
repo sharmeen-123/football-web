@@ -1,62 +1,99 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ItemsRightSidebar from "./ItemsRightSideBar";
 import Header from "../../Components/Header";
 import "../../styles/font.css"
-import Shirt from "../../assets/Shirt.png"
 import Minus from "../../assets/Minus.png"
 import { NavLink } from "react-router-dom";
-
+import axios from "axios";
 
 
 
 export default function Items() {
 
-  const[item,setitem] = useState(false);
-  function handleClick(){
-    if(item === false){
-      setitem(true);
-    }
-    else{
-      setitem(false);
-    }
+  const [allItems, setAllItems] = useState(false);
+  const [searchItem, setSearchItem] = useState(false);
+  const [searchItemCopy, setSearchItemCopy] = useState(false);
+  const [name, setName] = useState("");
+  const [image, setImage] = useState(false);
+  const[quantity, setQuantity] = useState(false);
+  const[status, setStatus] = useState(false);
+  const[price,setPrice] = useState(false);
+  const api = axios.create({
+    baseURL : 'http://localhost:8000'
+  });
+
+  useEffect (()=>{
+    data();
+  },[])
+
+   // getting items from database
+   const data = async () => {
+    console.log("in data")
+    let res = await api.get('/shop/getItems')
+    .then((res) => {
+      if (res.data.data !== res.data.data.Prototype){
+        setAllItems(res.data.data);
+
+      }})
+    .catch((error) => {
+        console.log(error.response.data);
+        
+    })
+  };
+
+  // searching
+  const handleSearchChange = (event) => {
+    // 👇 Get input value from "event"
+    setSearchItem(event.target.value);
+    searchInItem();
     
+  };
+  
+  const searchInItem = () => {
+    setSearchItemCopy([... allItems.filter(checkNames)]);
+  }
+  
+  const checkNames = (val) => {
+      if (val.name.includes(searchItem)){
+        return val.name;
+      }
   }
 
-// chart
-const staticdata = [
-    {
-      id: 25,
-    },
-    {
-      id: 21,
-    },
-    {
-      id: 30,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-  ];
+// adding members in the group
+const additem = (index) => {
+  let arr = [... allItems];
+  arr.map((val, ind) => {
+    if (val.isitem === true){
+      val.isitem = false;
+    }
+  })
+  arr[index].isitem = true;
+  setAllItems(arr);
+  Item(index);
+  
+}
 
+// // removing members from the group
+// const removeitem = (index) => {
+//   let arr = [... allItems];
+//   arr[index].isitem = false;
+//   setAllItems(arr);
 
+// }
+
+const Item = (ind) => {
+  setName(allItems[ind].name);
+  setImage(allItems[ind].image);
+  setQuantity(allItems[ind].quantity);
+  setPrice(allItems[ind].price);
+  if (quantity !== 0){
+    setStatus("Available (In Stock)");
+  }
+  else{
+    setStatus("Out of Stock");
+  }
+  
+}
 
   return (
     <>
@@ -96,11 +133,13 @@ const staticdata = [
                         class="bg-[#212121]  text-white  text-sm rounded-lg block w-full pl-10 p-2.5   border-gray-600 placeholder-gray-400  focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Search Orders"
                         required=""
+                        onChange={handleSearchChange}
                     />
                     </div>
                     <button
                     type="submit"
                     class="inline-flex font-dm items-center font-lexend py-2 px-5 ml-4 text-sm font-normal text-white bg-green-500 rounded-[4px] "
+                    onClick={searchInItem}
                     >
                     Search
                     </button>
@@ -137,7 +176,7 @@ const staticdata = [
       <div className="ml-6 p-3 mt-10">
       
       <table class="font-dm w-full text-md text-center justify-items-center text-white items-center">
-            <thead class=" font-dm text-base font-normal text-[#fffff]/0.81 uppercase  border-b border-[#7E7E7E]">
+            <thead class=" font-dm text-base font-normal text-[#7E7E7E]  border-b border-[#7E7E7E]">
               <tr className="text-center ">
                 <th scope="col" class="py-3 pl-3">
                 <div className="bg-[#DAD3FF] h-5 w-5 grid place-items-center rounded-md">
@@ -169,56 +208,64 @@ const staticdata = [
                 
               </tr>
             </thead>
-            
-            {staticdata.map((val, ind) => (
+
+            {allItems !== false? (<>
+            {searchItemCopy ? 
+// if searched
+            (<>
+            {searchItemCopy.map((val, ind) => (
                 <tbody>
-                    <tr class="font-dm text-center border-b border-[#7E7E7E] justify-items-center">
+                    <tr class="font-dm text-center border-b border-[#7E7E7E] justify-items-center"
+                    >
                   <th
                     scope="row"
                     class="py-4 px-3 font-medium whitespace-nowrap text-white"
                   >
-                    <div className="bg-[#424242] h-5 w-5 grid place-items-center rounded-md"
-                         onClick={handleClick} >
+                   
 
-{item === true ? (
+        {val.isitem === true ? (
               <>
-                <div className="bg-[#DAD3FF] h-5 w-5 grid place-items-center rounded-md
-                      onClick={handleClick}">
+              
+                <div className="bg-[#DAD3FF] h-5 w-5 grid place-items-center rounded-md"
+                      //  onClick={() => {removeitem(ind)}}
+                      >
                     <div className="m-auto my-auto">
                     <img className="mx-auto " src = {Minus} />
                     </div>
                     
-                </div>
-
-              
-                
-                
+                </div>     
               </>
             ) : (
-              <div></div>
+              <button className="bg-[#424242] h-5 w-5 grid place-items-center rounded-md"
+                      onClick={() => {additem(ind)}} 
+                         >
+                </button>
             )}
                         
                     
-                    
-                </div>
                   </th>
                   <td class="py-4 pl-8 ">
-                    <div className="flex gap-2 items-center justify-center">
+                    <div className="flex gap-2 items-left justify-center ml-24 pl-3">
                       
                      <div className="flex">
-                        <div className="flex-1 rounded-md">
-                        <img className="mx-auto rounded-md" src = {Shirt} />
+                        <div className="flex-1 rounded-md mr-6">
+                        <img className=" rounded-md w-10 h-10" src = {val.image} />
 
                         </div>
                         <div className="p-3 ">
-                            <p>Drifit Shirt</p>
+                            <p>{val.name}</p>
                         </div>
                      </div>
                     </div>
                   </td>
-                  <td class="py-4 ">£500.56</td>
-                  <td class="py-4 text-[#818181] ">Available</td>
-                  <td class="py-4 ">15</td>
+                  <td class="py-4 ">£{val.price}</td>
+                  {val.quantity !== 0 ? (<>
+                    <td class="py-4 text-[#818181] ">Available</td>
+                  </>) : (<>
+                    <td class="py-4 text-[#818181] ">Out of Stock</td>
+                  </>)}
+                  
+                  <td class="py-4 ">{val.quantity}</td>
                   <td class="py-4 mx-auto">
                   £5000.56
                   
@@ -232,7 +279,79 @@ const staticdata = [
 
                 
               ))}
+            </>) : 
+// if not searched
+            (<>
+            {allItems.map((val, ind) => (
+                <tbody>
+                    <tr class="font-dm text-center border-b border-[#7E7E7E] justify-items-center">
+                  <th
+                    scope="row"
+                    class="py-4 px-3 font-medium whitespace-nowrap text-white"
+                  >
+                   
 
+        {val.isitem === true ? (
+              <>
+              
+                <div className="bg-[#DAD3FF] h-5 w-5 grid place-items-center rounded-md"
+                      //  onClick={() => {removeitem(ind)}}
+                      >
+                    <div className="m-auto my-auto">
+                    <img className="mx-auto " src = {Minus} />
+                    </div>
+                    
+                </div>     
+              </>
+            ) : (
+              <button className="bg-[#424242] h-5 w-5 grid place-items-center rounded-md"
+                      onClick={() => {additem(ind)}} 
+                         >
+                </button>
+            )}
+                        
+                    
+                  </th>
+                  <td class="py-4 pl-8 ">
+                    <div className="flex gap-2 items-left justify-center ml-24 pl-3">
+                      
+                     <div className="flex">
+                        <div className="flex-1 rounded-md mr-6">
+                        <img className=" rounded-md w-10 h-10" src = {val.image} />
+
+                        </div>
+                        <div className="p-3 ">
+                            <p>{val.name}</p>
+                        </div>
+                     </div>
+                    </div>
+                  </td>
+                  <td class="py-4 ">£{val.price}</td>
+                  {val.quantity !== 0 ? (<>
+                    <td class="py-4 text-[#818181] ">Available</td>
+                  </>) : (<>
+                    <td class="py-4 text-[#818181] ">Out of Stock</td>
+                  </>)}
+                  
+                  <td class="py-4 ">{val.quantity}</td>
+                  <td class="py-4 mx-auto">
+                  £5000.56
+                  
+                  </td>
+                </tr>
+                
+
+                </tbody>
+                 
+                    
+
+                
+              ))}
+            </>)}
+              
+
+            </>) : (<></>)}
+            
 
                 
                
@@ -244,9 +363,9 @@ const staticdata = [
           </div>
 
           {/*skill cards */}
-          <div className=" xl:w-4/12">
+          <div className=" xl:w-4/12 border-[#7E7E7E]">
             <div className="ml-10 mr-10  2xl:grid 2xl:grid-cols-1 ">
-                return <ItemsRightSidebar />;
+                return <ItemsRightSidebar name = {name} image = {image} quantity = {quantity} price = {price} status = {status}/>;
             </div>
           </div>
         </div>

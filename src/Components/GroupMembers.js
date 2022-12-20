@@ -1,27 +1,57 @@
 import React from "react";
 import pfp from "../assets/pfp.png";
 import grouplist from "../assets/grouplist.png";
-import "../styles/font.css"
-export default function GroupMembers() {
-  const staticdata = [
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
+import "../styles/font.css";
+import { useState, useContext, useEffect } from "react";
+import { AuthContext } from "../admin/ActiveUser";
+import axios from "axios";
 
-  ];
+
+export default function GroupMembers() {
+  const [Group, SetGroup] = useState(false);
+  const [name, setName] = useState(false);
+  const api = axios.create({
+    baseURL : 'http://localhost:8000/groups'
+  });
+  const {group, setActiveGroup } = useContext(AuthContext); 
+  const {id, setActiveId } = useContext(AuthContext);
+
+   // getting all posts
+   const memberName = async () => {
+
+    let res = await api.get('/getgroupbyId/'+group)
+    .then ( (res) => {
+      
+      if (res.data.data !== res.data.data.Prototype){
+        let group = (res.data.data);
+        SetGroup(group);
+        adminname();
+      }
+      }
+    )
+
+    .catch((error) => {
+        console.log(error);
+    })
+  }
+  memberName();
+
+  // find admin name
+  const adminname = () => {
+    Group.members.map((val,ind) => {
+      if (val.email  === id){
+        setName(val.name)
+      }
+    })
+  }
+  
+ 
   return (
     <>
       <div className="">
-        <div className="flex justify-end">
+        {Group !== false? (<>
+
+          <div className="flex justify-end">
           <svg
             width="19"
             height="5"
@@ -39,12 +69,12 @@ export default function GroupMembers() {
           <div class="px-4 pt-4">
             <div class="flex flex-col items-center ">
               <img
-                class=" w-24 h-24 rounded-sm"
-                src={grouplist}
+                class=" w-28 h-28 rounded-lg"
+                src={Group.pic}
                 alt="Bonnie image"
-              />
+              /> 
               <h5 class="mb-1 mt-5 text-lg font-lexend font-medium text-white ">
-                Strikers Group
+                {Group.memberName}
               </h5>
               <div className="flex items-center gap-1">
                 <svg
@@ -57,7 +87,7 @@ export default function GroupMembers() {
                   <circle cx="4" cy="4" r="4" fill="#1DB954" />
                 </svg>
                 <p class="font-normal font-lexend text-left text-sm text-gray-400">
-                  32 members
+                  {Group.members.length} members
                 </p>
               </div>
             </div>
@@ -80,17 +110,22 @@ export default function GroupMembers() {
                   />
                 </svg>
               </div>
-              {staticdata.map((val, ind) => {
-                const checkavaliblity = ind % 2 == 0;
+              {Group.members.map((val, ind) => {
+                
                 return (
                   <div className="flex items-center font-lexend  mb-6">
-                    <img
+                    
+                    {val.image ? (<>
+                      <img
                       class=" w-10 h-10 rounded-full"
-                      src={pfp}
+                      src={val.image}
                       alt="Bonnie image"
-                    />
+                    /></>): (<>
+                    <div class=" w-10 h-10 rounded-full bg-white"></div>
+                    </>)}
+                    
                     <h4 class="font-lexend self-center text-base font-normal whitespace-nowrap text-white ml-3  ">
-                      John
+                      {val.name}
                     </h4>
                     <svg
                       className="ml-auto"
@@ -117,18 +152,23 @@ export default function GroupMembers() {
                 </h4>
               </div>
               <div className="flex items-center gap-3  my-7 pb-10 mb-10 ">
-                <img
+                {Group.adminImage ? (<>
+                  <img
                   class=" w-10 h-10 rounded-full"
                   src={pfp}
                   alt="Bonnie image"
-                />
+                /></>) : (<>
+                <div class=" w-10 h-10 rounded-full bg-white"></div>
+                </>)}
+                
                 <h4 class="self-center  text-base font-normal font-lexend whitespace-nowrap text-white   ">
-                  Huzayfah
+                  {name}
                 </h4>
               </div>
             </div>
           </div>
-        </div>
+        </div></>):(<></>)}
+        
       </div>
     </>
   );

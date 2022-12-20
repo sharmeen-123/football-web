@@ -1,15 +1,44 @@
 import React from "react";
 import { useState } from "react";
 import "../../styles/font.css"
-import Product from "../../assets/Product.png"
-import Shirt from "../../assets/ShirtSidebar.png"
-export default function ItemsRightSidebar() {
+import axios from "axios";
+export default function ItemsRightSidebar(props) {
+    let name = props.name
     const[edit,setEdit] = useState(false);
+    const [item, setItem] = useState("");
+    const [newName, setNewName] = useState("");
+    const api = axios.create({
+      baseURL : 'http://localhost:8000/shop/'
+    });
 
   function click(){
     setEdit(true);
     console.log(edit)
   }
+
+  function editName (event){
+    setNewName(event.target.value);
+    data();
+  }
+
+  function checkItem(){
+    if (props.name + props.image + props.name + props.quantity + props.price + props.status){
+      setItem(true);
+    }
+  }
+
+  // getting players from database
+  const data = async () => {
+    console.log("in data")
+    let res = await api.put('updateitem/'+name, {name : newName})
+    .then(console.log("data updated"))
+    .catch((error) => {
+        console.log(error.response.data);
+        
+    })
+  };
+
+
     
     
   return (
@@ -41,17 +70,18 @@ export default function ItemsRightSidebar() {
         
         <div class="overflow-x-auto   font-lexend relative  my-5 font-dm rounded-xl ">
           
-                <div className="rounded-md"> 
-                <img src = {Shirt} />
+                <div className="rounded-md "> 
+                {props.image? (<><img classNme="w-20" src = {props.image} /></>) : (<></>)}
+                
 
                 </div>
                 <div>
-                
-                <p className="text-[#7E7E7E] mt-3">Product Name</p>
+                  {props.name ? (<>
+                    <p className="text-[#7E7E7E] mt-3">Name</p>
                 {edit === false ? (
               <>
                 <input type={"text"} 
-                value={"Nike Drifit Shirt"} 
+                value={props.name} 
                 disabled
                 class="self-center bg-[#121212] font-lexend text-lg font-medium whitespace-nowrap text-white  "
                      />
@@ -60,36 +90,46 @@ export default function ItemsRightSidebar() {
             ) : (
               <div>
                 <input type={"text"} 
-                placeholder={"Nike Drifit Shirt"} 
+                placeholder={props.name} 
                 disabled = {false}
                 class="self-center font-lexend bg-[#121212] text-lg font-medium whitespace-nowrap text-white border-hidden  "
+                onChange={editName}
                      />
               </div>
-            )}
+            )}</>) : (<></>)}
+                
+                
                 
                 </div>
                 <div className="flex text-[#7E7E7E] mt-7">
                     <div className="flex-1">
-                        <p>Price</p>
+                      {props.price? (<><p>Price</p></>):(<></>)}
+                        
                     </div>
                     <div className="flex-1">
-                        <p>Status</p>
+                    {props.status? (<><p>Status</p></>):(<></>)}
+                        
                     </div>
                 </div>
 
                 <div className="flex text-white mt-5">
                     <div className="flex-1 text-lg text-bold">
-                        <p>£500.56</p>
+                    {props.price? (<><p>£{props.price}</p></>):(<></>)}
+                        
                     </div>
                     <div className="flex-1 text-sm">
-                        <p>Available (In stock)</p>
+                    {props.status? (<><p>{props.status}</p></>):(<></>)}
+                        
                     </div>
                 </div>
                 <div>
-                <p className="text-[#7E7E7E] mt-5">Quantity</p>
+                  {props.quantity? (<>
+                    <p className="text-[#7E7E7E] mt-5">Quantity</p>
                 <h3 class="self-center font-lexend  whitespace-nowrap text-white  mt-3">
-                    45 items
+                    {props.quantity}
                     </h3>
+                    </>): (<></>)}
+                
                 </div>
        
             

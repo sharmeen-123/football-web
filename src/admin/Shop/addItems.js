@@ -2,23 +2,77 @@ import React, { useState, useRef } from "react";
 import ItemsRightSidebar from "./ItemsRightSideBar";
 import Header from "../../Components/Header";
 import "../../styles/font.css"
-
-
+import axios from "axios";
 
 
 export default function AddItems() {
-
-  const [openAddsubcatmodal, setopenAddsubcatmodal] = useState(false);
-  const [opendeletemodal, setopendeletemodal] = useState(false);
-
+  const[name, setName] = useState("");
+  const [price, setPrice] = useState(false);
+  const [quantity, setQuantity] = useState(false);
+  const [image, setImage] = useState(false);
+  const [url, setUrl] = useState(false);
+  const [error, setError] = useState(false);
+  const [status, setStatus] = useState(false);
+  let isitem = false;
   const hiddenFileInput = React.useRef(null);
+
+  const api = axios.create({
+    baseURL : 'http://localhost:8000/shop'
+  });
 
   const handleClick = (event) => {
     hiddenFileInput.current.click();
   };
   const handleChange = (event) => {
-    const fileUploaded = event.target.files[0];
+    setImage(event.target.files[0]);
+    img();
   };
+
+  const handleName = (event) => {
+    setName(event.target.value);
+  }
+
+  const handlePrice = (event) => {
+    setPrice(event.target.value);
+  }
+
+  const handleQuantity = (event) => {
+    setQuantity(event.target.value);
+    if (quantity !== 0){
+      setStatus("Available (In Stock)");
+    }
+    else{
+      setStatus("Out of Stock");
+    }
+  }
+
+  // uploading image on cloudinary
+  const img = () => {
+    const data = new FormData();
+    data.append("file", image);
+    data.append("upload_preset","player_image");
+    //data.append("cloud_name","dyapmvalo");
+    axios.post("https://api.cloudinary.com/v1_1/dyapmvalo/image/upload", data)
+    .then((res) => {
+      setUrl(res.data.url)
+      console.log(url)
+    })
+    .catch((err) => {
+      console.log(err)
+    });
+  }
+
+  // sending request
+  const addItem = async () => {
+    let res = await api.post('/additem', {name : name, price : price, quantity : quantity, image : url, isitem:isitem})
+    .then (
+      setError(false)
+    )
+    .catch((error) => {
+        setError(error.response.data);
+        console.log(error);
+    })
+  }
 
 
   // chart
@@ -60,9 +114,10 @@ export default function AddItems() {
 
                   <div className="flex ml-4 p-5 pt-4">
                     <div className="flex-1 ">
-                      <input className="text-md w-full font-lexend text-white placeholder-white bg-[#212121] p-4"
+                      <input className="text-md w-full font-lexend text-white placeholder-gray-400 bg-[#212121] p-4"
                         type={"text"}
-                        placeholder="Nike Drift Shirt" />
+                        placeholder="Nike Drift Shirt" 
+                        onChange={handleName}/>
 
                       {/* Upload Button */}
                       <div
@@ -90,6 +145,14 @@ export default function AddItems() {
                           style={{ display: "none" }}
                         />
                       </div>
+                      {error?(
+                <div>
+                <p className="text-white font-lexend text-sm p-3 text-center">{error}</p>
+                </div> 
+              ):(
+                <>
+                 </>
+              )}
 
                       {/* Cancel and additem button */}
                       <div className="flex mt-7 mr-2">
@@ -105,6 +168,7 @@ export default function AddItems() {
                           <button
                             type="submit"
                             class=" font-dm caret-white items-center font-lexend w-full py-2  ml-2 mt-3 text-sm font-normal bg-white rounded-[4px] "
+                            onClick={addItem}
                           >
                             Add Items
                           </button>
@@ -114,16 +178,19 @@ export default function AddItems() {
                     <div className="flex-1">
                       <div className="flex">
                         <div className="flex-1">
-                          <input className=" ml-3 text-md w-full placeholder-lexend text-white placeholder-white bg-[#212121] p-4"
+                          <input className=" ml-3 text-md w-full placeholder-lexend text-white placeholder-gray-400 bg-[#212121] p-4"
                             type={"number"}
                             step={".1"}
-                            placeholder="500.56" />
+                            placeholder="500.56" 
+                            onChange = {handlePrice}/>
                         </div>
                         <div className="flex-1  text-md text-[#7E7E7E] ml-2">
-                          <input className=" ml-3 text-md w-full  placeholder-lexend text-white placeholder-white bg-[#212121] p-4"
+                          <input className=" ml-3 text-md w-full  placeholder-lexend text-white placeholder-gray-400 bg-[#212121] p-4"
                             type={"number"}
 
-                            placeholder="45" />
+                            placeholder="45" 
+                            onChange = {handleQuantity}/>
+                            
                         </div>
                       </div>
                     </div>
@@ -146,9 +213,9 @@ export default function AddItems() {
           </div>
 
           {/*skill cards */}
-          <div className=" xl:w-4/12">
+          <div className=" xl:w-4/12 border-[#7E7E7E]">
             <div className="ml-10 mr-10  2xl:grid 2xl:grid-cols-1 ">
-              return <ItemsRightSidebar />;
+              return <ItemsRightSidebar name = {name} image = {url} quantity = {quantity} price = {price} status = {status}/>;
             </div>
           </div>
         </div>

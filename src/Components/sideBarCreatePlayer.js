@@ -10,23 +10,7 @@ export default function SidebarCreatePlayer() {
     <div >
       {/* Parent Profile Card */}
       <div className="">
-        <div className="flex">
-            
-            
-        </div>
-        
-        <div class="overflow-x-auto   font-lexend relative  my-5 font-dm rounded-xl ">
-          
-                
-                
-               
-
-                
-                
        
-            
-        </div>
-        
         </div>
     </div>
   );

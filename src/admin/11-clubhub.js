@@ -1,10 +1,80 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ClubhubSidebar from "../Components/clubhub-sidebar";
 import Header from "../Components/Header";
-import "../styles/font.css"
+import "../styles/font.css";
+import axios from "axios";
 export default function Club2() {
 
   // onciick button uppload video
+
+  const [newFolder, setNewFolder] = useState(false);
+  const[folderName, setFolderName] = useState(false);
+  const[error, setError] = useState(false);
+  const [folders, setfolders] = useState(false);
+  const [document, setDocument] = useState("Documents")
+
+  const api = axios.create({
+    baseURL : 'http://localhost:8000/clubhub'
+  });
+
+  useEffect (()=>{
+    console.log("in useeffect")
+    allFolders();
+    
+  },[])
+
+  // getting folders from database
+  const allFolders = async () => {
+    console.log("in all players")
+    let res = await api.get('/getfolder')
+    .then((res) => {
+      if (res.data.data !== res.data.data.Prototype){
+        setfolders(res.data.data);
+
+      }
+        
+    })
+    .catch((error) => {
+        console.log(error.response.data);
+      })
+  }
+
+  // creating folders
+  const Folder = () => {
+    createFolder();
+    if (error === false){
+       allFolders();
+        setNewFolder(false);
+        // allFolders();
+    }
+
+  }
+  const createFolder = async () => {
+    
+    let res = await api.post('/createfolder', {name: folderName})
+    .then (
+      setError(false)
+    )
+    .catch((error) => {
+        setError(error.response.data);
+        console.log(error);
+    })
+  }
+
+  const UploadFile = async () => {
+    
+    // let res = await api.post('/uploadfile', {name: folderName})
+    // .then (
+    //   setError(false)
+    // )
+    // .catch((error) => {
+    //     setError(error.response.data);
+    //     console.log(error);
+    // })
+  }
+
+  
+ 
 
   const hiddenFileInput = React.useRef(null);
   const handleClick = (event) => {
@@ -12,6 +82,10 @@ export default function Club2() {
   };
   const handleChange = (event) => {
     const fileUploaded = event.target.files[0];
+  };
+  const handleFileName = (event) => {
+    setFolderName(event.target.value);
+    console.log(folderName)
   };
   return (
     <>
@@ -31,7 +105,7 @@ export default function Club2() {
                     <div className="flex place-content-end">
                     <div className="flex-1">
                     <button
-
+                        onClick={() => {setNewFolder(true)}}
                         class="flex-end  font-lexend mb-12 items-center mt-[32px] py-2.5 px-8  text-sm font-normal  bg-white rounded-[4px] m-2">
                         New Folder
                         </button>
@@ -41,9 +115,17 @@ export default function Club2() {
                     
                 </div>
 
-                <div className="shrink flex ml-7">
-                    <div className="flex-1 rounded-lg m-2 bg-[#212121] pr-30 font-lexend">
-                        <div className="flex">
+                   
+                <div className="mb-9 mx-7 font-sans grid grid-cols-3 md:grid-cols-3  gap-4 ">
+                
+                    {folders !== false ? (<>
+                      {folders.map((val, ind) => {
+                        return(
+                            <>
+                            {val.name === "Documents" ? 
+                            (<div className="rounded-lg bg-[#212121] w-full"
+                            onClick={() => {setDocument(val.name)}}>
+                                <div className="flex">
                         <div className="flex-1 m-2 p-4">
                         <svg width="40" height="32" viewBox="0 0 40 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M16 0H4C1.79 0 0.02 1.79 0.02 4L0 28C0 30.21 1.79 32 4 32H36C38.21 32 40 30.21 40 28V8C40 5.79 38.21 4 36 4H20L16 0Z" fill="#1DB954"/>
@@ -61,99 +143,71 @@ export default function Club2() {
                        
                         </div>
                         
-                        <div className="m-4">
-                            <h3 className="m-2  text-lg text-white">Documents</h3>
-                            <h5 className="m-2  text-sm text-white">20 files</h5>
+                        <div className="m-4 ">
+                            <h3 className="m-2 text-lg text-white">Documents</h3>
+                            {val.files ? (<>
+                              <h5 className="m-2  text-sm text-white">{val.files.length} files</h5></>): 
+                              (<>
+                              <h5 className="m-2  text-sm text-white">0 files</h5></>)}
                         </div>
-                    </div>
-                    
-                    <div className="flex-1 rounded-lg m-2 bg-[#212121] pr-30 ">
+
+
+                                </div>) : (<>
+                                <div className="rounded-lg bg-[#212121] w-full"
+                                    onClick={() => {setDocument(val.name)}}>
                         <div className="m-2 p-4">
-                        <svg width="40" height="32" viewBox="0 0 40 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="40"  viewBox="0 0 40 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M16 0H4C1.79 0 0.02 1.79 0.02 4L0 28C0 30.21 1.79 32 4 32H36C38.21 32 40 30.21 40 28V8C40 5.79 38.21 4 36 4H20L16 0Z" fill="#359EFF"/>
                         </svg>
 
 
                         </div>
-                        <div className="mt-24 m-4">
-                            <h3 className="m-2 mt-10 text-lg text-white">Videos</h3>
-                            <h5 className="m-2  text-sm text-white">20 files</h5>
-                        </div>
-                    </div>
-
-                    <div className="flex-1 w-20 rounded-lg m-2 bg-[#212121] pr-30 ">
-                        <div className="m-2 p-4">
-                        <svg width="40" height="32" viewBox="0 0 40 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M16 0H4C1.79 0 0.02 1.79 0.02 4L0 28C0 30.21 1.79 32 4 32H36C38.21 32 40 30.21 40 28V8C40 5.79 38.21 4 36 4H20L16 0Z" fill="#359EFF"/>
-                        </svg>
-
+                        <div className="pl-3.5 pb-3.5 mt-20">
+                        <h3 className="m-2 mt-10 text-lg text-white">{val.name}</h3>
+                        <h5 className="m-2  text-sm text-white">{val.files.length} files</h5>
 
                         </div>
-                        <div className="mt-24 m-4">
-                            <h3 className="m-2 mt-10 text-lg text-white">Videos</h3>
-                            <h5 className="m-2  text-sm text-white">20 files</h5>
-                        </div>
-                    </div>
-
-
-                    </div>
-
-                    <div className="shrink flex ml-7">
-                    
-                    <div className="flex-1 rounded-lg m-2 bg-[#212121] pr-30 font-lexend">
-                        <div className="m-2 p-4">
-                        <svg width="40" height="32" viewBox="0 0 40 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M16 0H4C1.79 0 0.02 1.79 0.02 4L0 28C0 30.21 1.79 32 4 32H36C38.21 32 40 30.21 40 28V8C40 5.79 38.21 4 36 4H20L16 0Z" fill="#359EFF"/>
-                        </svg>
-
-
-                        </div>
-                        <div className="mt-24 m-4">
-                            <h3 className="m-2 mt-10 text-lg text-white">Videos</h3>
-                            <h5 className="m-2  text-sm text-white">20 files</h5>
-                        </div>
-                    </div>
-                    <div className="flex-1 rounded-lg m-2 bg-[#212121] pr-30">
-                        <div className="m-2 p-4">
-                        <svg width="40" height="32" viewBox="0 0 40 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M16 0H4C1.79 0 0.02 1.79 0.02 4L0 28C0 30.21 1.79 32 4 32H36C38.21 32 40 30.21 40 28V8C40 5.79 38.21 4 36 4H20L16 0Z" fill="#359EFF"/>
-                        </svg>
-
-
-                        </div>
-                        <div className="mt-24 m-4">
-                            <h3 className="m-2 mt-10 text-lg text-white">Others</h3>
-                            <h5 className="m-2  text-sm text-white">20 files</h5>
-                        </div>
-                    </div>
-                    <div className="flex-1 rounded-[4px] m-2  pr-30">
+                       
                         
-                    </div>
+                    </div></>)}
+                            </>
+                            
+                        )
+                    })}</>) : (<>
+                        </>)}
                     
                 </div>
                 
+
+
+
                 <div className="flex items-stretch">
                     <div className="flex-1">
                     <h4 class="text-xl font-medium text-white font-lexend whitespace-nowrap  ml-9 mt-[32px] ">
-                        Documents
+                        {document} 
                     </h4>
                     </div>
                     <div className="flex place-content-end">
                     <div className="flex-1">
 
-                    <div
+                <form>
+                <div
                 onClick={handleClick}
                 className=" flex-end  font-lexend mb-12 items-center mt-[32px] py-2.5 px-8  text-sm font-normal  bg-green-500 text-white rounded-[4px] m-2"
               >
 
                 <div className="ml-2"> Upload File</div>
-                <input
-                  type="file"
-                  ref={hiddenFileInput}
-                  onChange={handleChange}
-                  style={{ display: "none" }}
-                />
-              </div>
+                    <input
+                      type="file"
+                      ref={hiddenFileInput}
+                      onChange={handleChange}
+                      name = "file" 
+                      style={{ display: "none" }}
+                      onClick = {UploadFile}
+                    />
+                  </div>
+                </form>
+                    
 
 
                     </div>
@@ -276,13 +330,88 @@ export default function Club2() {
           </div>
 
           {/*skill cards */}
-          <div className=" xl:w-4/12">
+          <div className=" xl:w-4/12 border-[#7E7E7E]">
             <div className="ml-10 mr-10  2xl:grid 2xl:grid-cols-1 ">
                 return <ClubhubSidebar />;
             </div>
           </div>
         </div>
       </div>
+      {/* set event popup */}
+<div
+        id="defaultModal"
+        
+        class={
+          !newFolder
+            ? "hidden"
+            : " flex absolute top-0 right-0 left-0 z-50 w-full h-full  bg-black/70  bg-opacity-5 justify-center items-center"
+        }
+      >
+        <div class="relative p-4 w-full max-w-lg  ">
+          <div class="relative bg-gradient-to-r from-[#000000]/24 to-[#000000]/81 backdrop-blur-[5px]  border-[border] border-2   rounded-2xl px-4 py-2">
+            <button
+              onClick={() => !setNewFolder(false)}
+              type="button"
+              class="text-gray-400 bg-white bg-transparent rounded-full  p-0.5 ml-auto flex items-center "
+            >
+              <svg
+                aria-hidden="true"
+                class="w-5 h-5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </button>
+
+            <div class="justify-center p-3 ">
+            <h3 class="text-lg text-left font-lexend font-bold text-white p-3.5">
+             Name
+            </h3>
+
+            <div class="flex justify-center p-3 ">
+              <input
+                type="text"
+                class="bg-[#212121]  text-white text-sm rounded-lg placeholder-lexend block w-full p-3 mb-5 placeholder-white"
+                placeholder="Enter Name of the Folder"
+                required=""
+                onChange={handleFileName}
+              />
+              </div>
+              {error?(
+                <div>
+                <p className="text-white font-lexend text-sm p-3 text-left">{error}</p>
+                </div> 
+              ):(
+                <>
+                 </>
+              )}
+            <div className="flex items-center justify-center gap-3 mt-2 mb-10">
+            
+              <button class="inline-flex items-center py-2 px-7  text-sm font-medium text-black bg-white rounded-[4px] "
+              onClick={Folder}>
+                Create Folder
+              </button>
+              
+            </div>
+            
+              
+            </div>
+            
+          </div>
+        </div>
+
+        
+      </div>
+
+
+
+      
     </>
   );
 }

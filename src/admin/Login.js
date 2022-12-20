@@ -3,7 +3,11 @@ import "../styles/Login.css"
 import Hand from "../assets/Hand.png"
 import { NavLink, Routes, Route } from "react-router-dom";
 import { AuthContext } from "./ActiveUser"
-import SignUp from "./SignUp";
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL : 'http://localhost:8000'
+});
 
 
 export const Login = () =>{
@@ -12,7 +16,11 @@ export const Login = () =>{
   const[changePass, setChangePass] = useState(false);
   const { currentUser, setUser } = useContext(AuthContext);
   const [admin,setadmin] = useState(currentUser);
-  
+  const [error, setError] = useState(false);
+  const [link, setLink] = useState('');
+  const[email,setEmail]= useState(false);
+  const[passw,setPassword]= useState(false);
+  const {id, setActiveId } = useContext(AuthContext);
 
   const chPass = () => {
     setChangePass(true);
@@ -31,12 +39,40 @@ export const Login = () =>{
   };
   const user2 = () => {
     setadmin(false);
-    setUser("coach");
-    
-    
-    
+    setUser("coach"); 
+  };
+
+  const handleEmailChange = (event) => {
+    // 👇 Get input value from "event"
+    setEmail(event.target.value);
     
   };
+
+  const handlePasswordChange = (event) => {
+    // 👇 Get input value from "event"
+    setPassword(event.target.value);
+  };
+
+  const login = async () => {
+    if (admin === true){
+      let res = await api.post('/admin/login', {password:passw,email:email})
+    .then((res) =>{
+      setActiveId(email);
+        setLink("/dashboard")
+        
+    }
+    )
+    .catch((error) => {
+        setError(error.response.data);
+        setLink("")
+    })
+    }
+    else{
+      setLink("/dashboard")
+    }
+    
+  }
+
   return (
   <div className="login">
                                                   
@@ -91,7 +127,7 @@ export const Login = () =>{
                  </div>
 
 {/* Email text field */}
-                 <div className="flex">
+                 <div className="flex justify-center items-center">
                     <div className="flex-1"></div>
                  <div className="flex-1  justify-center  mt-2 grow-0">
                     <div className="bg-[#212121] rounded-lg p-2">
@@ -100,8 +136,9 @@ export const Login = () =>{
                         <div className="flex-1 w-full ">
                         <input 
                     type={"email"} 
-                    className = {"text-white  font-lexend text-sm   rounded-lg border-none placeholder-white bg-[#212121]"}
-                    placeholder={"Enter your email adress"}/>
+                    className = {"text-white  font-lexend text-sm   rounded-lg border-none placeholder-[#7E7E7E] bg-[#212121]"}
+                    placeholder={"Enter your email adress"}
+                    onChange={handleEmailChange}/>
                         </div>
                         <div className="flex-1 grow-0 p-2">
                     <svg width="19" height="15" viewBox="0 0 19 15" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -124,8 +161,9 @@ export const Login = () =>{
                         
                         <input 
                     type={"password"} 
-                    className = {"text-white w-full font-lexend text-sm  mr-11 rounded-lg border-none placeholder-white bg-[#212121]"}
-                    placeholder={"Enter your password"}/>
+                    className = {"text-white w-full font-lexend text-sm  mr-11 rounded-lg border-none placeholder-[#7E7E7E] bg-[#212121]"}
+                    placeholder={"Enter your password"}
+                    onChange={handlePasswordChange}/>
                     </div>
  {/* Forgot Password */}
 
@@ -135,39 +173,52 @@ export const Login = () =>{
                             <button className="w-40  text-[#7E7E7E] text-end font-lexend text-sm ml-9 pt-3 pb-3" onClick={password}>Forgot Password?</button>
                         </div>
                 </div>
-                 </div>
-                 <div className="flex-1"></div>
-                 </div>
-                 {/* Login button */}
-
-            <div className="flex">
-                    <div className="flex-1"></div>
-                    <div className="flex-1"></div>
-                    <div className="flex-1  pl-8 pr-8">
-                      <NavLink to={"/dashboard"}>
-                      <button className="text-white rounded-lg font-lexend bg-[#1DB954] w-full text-sm  pt-4 pb-4">Login</button>
+                {/* Login button */}
+                <div className="w-full">
+                {error?(
+                  <>
+                 
+                <div>
+                <p className="text-white font-lexend text-sm p-3 text-center">{error}</p>
+                </div>
+                <NavLink to={link}>
+                      <button className="text-white rounded-lg font-lexend bg-[#1DB954] w-full text-sm  pt-4 pb-4"
+                      onClick={login}>Login</button>
                     
                       </NavLink>
-                        </div>
+                  
+                 
+              </>
+              ):(
+                <>
+                 <NavLink to={link}>
+                      <button className="text-white rounded-lg font-lexend bg-[#1DB954] w-full text-sm  pt-4 pb-4"
+                      onClick={login}>Login</button>
+                    
+                      </NavLink>
+                
                 
                  
-                 <div className="flex-1"></div>
-                 <div className="flex-1"></div>
-                 </div>
+                 </>
+              )}
+                
+                      
+                        </div>
+                        <div className="w-full ">
+                    
+                  <NavLink to={"/SignUp"}>
+                  <button className="text-white rounded-lg font-lexend bg-[#535353] w-full text-sm mt-3  pt-4 pb-4">Register</button>
+                  </NavLink>
+                     
+               </div>
 
-                 <div className="flex">
-                    <div className="flex-1"></div>
-                    <div className="flex-1"></div>
-                    <div className="flex-1 p-2 pl-8 pr-8">
-                      <NavLink to={"/SignUp"}>
-                    <button className="text-white rounded-lg font-lexend bg-[#535353] w-full text-sm  pt-4 pb-4">Register</button>
-                    </NavLink>
-                        </div>
-                
-                 
-                 <div className="flex-1"></div>
-                 <div className="flex-1"></div>
+
+
                  </div>
+                 <div className="flex-1"></div>
+                
+                 </div>
+              
  
     </div>
     
@@ -202,7 +253,7 @@ export const Login = () =>{
               Enter Email or Phone to get password changing link
             </p>
 
-            <div class="flex justify-center p-3 pl-10 pr-10 ">
+            <div className="flex justify-center p-3 pl-10 pr-10 ">
               <input
                 type="text"
                 className="bg-[#212121]  text-white text-sm rounded-lg w-full pl-10 p-3 mb-5 placeholder-white"

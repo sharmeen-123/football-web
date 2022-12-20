@@ -1,61 +1,117 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../Components/Header";
 import "../styles/font.css"
 import pfp from "../assets/pfp.png";
 import { NavLink } from "react-router-dom";
-
-
-
+import axios from "axios";
 
 
 
 export default function UserArea() {
+  const [staticdata, setStaticData] = useState(false);
   const [openAddsubcatmodal, setopenAddsubcatmodal] = useState(false);
-  const staticdata = [
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-  ];
+  const [totalPlayers, setTotalPlayers] = useState(0);
+  const [playersJoined, setPlayersJoined] = useState(0);
+  const [playersLeft, setPlayersLeft] = useState(0);
+  const [searchPlayer, setSearchPlayer] = useState(false);
+  const [search, setSearch] = useState(false);
+  const [staticdataCopy, setStaticDataCopy] = useState(false);
 
-  const date = new Date();
-  const month = date.toLocaleString("default", { month: "short" });
-  const year = date.getFullYear();
-  const day = date.getDate();
+  const api = axios.create({
+    baseURL : 'http://localhost:8000/player'
+  });
+   // seting value
+  const handleSearchChange = (event) => {
+    // 👇 Get input value from "event"
+    setSearchPlayer(event.target.value);
+    searchInPlayer();
+    
+  };
 
+  useEffect (()=>{
+    data();
+  },[])
+
+
+  // getting players from database
+  const data = async () => {
+    console.log("in data")
+    let res = await api.get('/getplayers')
+    .then((res) => {
+      if (res.data.data !== res.data.data.Prototype){
+        setStaticData(res.data.data);
+        player();
+
+      }})
+    .catch((error) => {
+        console.log(error.response.data);
+        
+    })
+  };
+
+  // searching players
+  const searchInPlayer = () => {
+    setStaticDataCopy([... staticdata.filter(checkNames)]);
+  }
+  
+  const checkNames = (val) => {
+    console.log(staticdataCopy);
+      if (val.name.includes(searchPlayer)){
+        return val.name;
+      }
+  }
+
+  // profile
+   const openProfile = (index) => {
+      let arr = [... staticdata];
+      arr.map((val,ind) => {
+        val.isPlayer = false
+      })
+      arr[index].isPlayer = true;
+      setStaticData(arr); 
+  }
+  const closeProfile = (index) => {
+    let arr = [... staticdata];
+      arr[index].isPlayer = false;
+      setStaticData(arr);
+
+  }
+
+  // set upper bar
+  const player = () => {
+    let left = []
+    let present = []
+      setTotalPlayers(staticdata.length)
+      present = staticdata.filter((val) => {return !val.dateLeft});
+      setPlayersJoined(present.length);
+      console.length(playersJoined);
+      left = staticdata.filter((val) => {return val.dateLeft});
+      setPlayersLeft(left.length);
+      console.length(playersLeft);
+
+  }
+
+  
   return (
     <>
+    
       <div className="flex-col w-full">
         {/* Page Header */}
         <Header title={"User Area"} />
         {/* Title Of the Page */}
-        <h4 class="self-center text-xl font-medium text-white whitespace-nowrap  ml-9 mt-[32px] " 
+        <h4 className="self-center text-xl font-medium text-white whitespace-nowrap  ml-9 mt-[32px] " 
             >
           Players
         </h4>
         {/* Search Button  */}
         <div className="flex items-center justify-start gap-10 mx-9 my-5 font-dm">
-          <form class="flex items-center w-1/2">
+          <form className="flex items-center w-1/2">
 
-            <div class="relative w-full font-dm">
-              <div class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+            <div className="relative w-full font-dm">
+              <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
                 <svg
                   aria-hidden="true"
-                  class="w-5 h-5 text-gray-500 "
+                  className="w-5 h-5 text-gray-500 "
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
@@ -69,25 +125,26 @@ export default function UserArea() {
               </div>
               <input
                 type="text"
-                class="bg-[#212121]  text-white p-5  text-sm rounded-lg block w-full pl-10 p-2.5   border-gray-600 placeholder-gray-400  focus:ring-blue-500 focus:border-blue-500"
+                className="bg-[#212121]  text-white p-5  text-sm rounded-lg block w-full pl-10 p-2.5   border-gray-600 placeholder-gray-400  focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Search Players"
                 required=""
+                onChange={handleSearchChange}
               />
             </div>
-            <button
-              type="submit"
-              class="inline-flex font-dm font-lexend placeholder-lexend items-center py-4 px-6 ml-4 text-sm font-normal text-white bg-green-500 rounded-[4px] "
-            >
+            <button className="inline-flex font-dm font-lexend placeholder-lexend items-center py-4 px-6 ml-4 text-sm font-normal text-white bg-green-500 rounded-[4px] "
+            onClick={searchInPlayer}>
               Search
             </button>
+           
 
 
           </form>
           
             <NavLink to={"/userarea/createProfile"}>
             <button
-            class="font-dm bg-white ml-auto text-sm  focus:outline-none font-normal rounded-[4px]  px-6 py-4 text-center inline-flex items-center"
+            className="font-dm bg-white ml-auto text-sm  focus:outline-none font-normal rounded-[4px]  px-6 py-4 text-center inline-flex items-center"
             type="button"
+            
           >
             Create Player
             </button>
@@ -109,7 +166,7 @@ export default function UserArea() {
 
               </div>
               <div className="flex-1 mt-8 ml-3">
-                <h1 className="text-3xl font-bold font-lexend">70</h1>
+                <h1 className="text-3xl font-bold font-lexend">{totalPlayers}</h1>
                 <h3 className="text-text-lg font-lexend">Total Players</h3>
               </div>
             </div>
@@ -127,7 +184,7 @@ export default function UserArea() {
 
               </div>
               <div className="flex-1 mt-3 mt-8 ml-4">
-                <h1 className="text-3xl font-bold">65</h1>
+                <h1 className="text-3xl font-bold">{playersJoined}</h1>
                 <h3 className="text-lg">Players Joined</h3>
               </div>
             </div>
@@ -145,7 +202,7 @@ export default function UserArea() {
 
               </div>
               <div className="flex-1 mt-3 mt-8 ml-3">
-                <h1 className="text-3xl font-bold">5</h1>
+                <h1 className="text-3xl font-bold">{playersLeft}</h1>
                 <h3 className="text-lg">Players Left</h3>
               </div>
             </div>
@@ -175,62 +232,73 @@ export default function UserArea() {
         </div>
 
         {/* Table Of user  */}
-        <div class="overflow-x-auto   font-lexend relative mx-10 my-5 font-dm rounded-xl">
-          <table class="font-dm w-full text-sm text-left text-white  bg-gradient-to-r from-[#2F2F2F]/100 to-[#3A3A3A]/0 ">
-            <thead class=" font-dm text-base font-normal text-white/0.81 uppercase border-[#7E7E7E] border-b">
-              <tr className="text-center font-DM-sans">
-                <th scope="col" class="py-3 pl-3">
+        <div className="overflow-x-auto   font-lexend relative mx-10 my-5 font-dm rounded-xl">
+          <table className="font-dm w-full text-sm text-left text-white  bg-gradient-to-r from-[#2F2F2F]/100 to-[#3A3A3A]/0 " >
+            <thead className=" font-dm text-base font-normal text-white/0.81 border-[#7E7E7E] border-b">
+              <tr className="text-center font-DM-sans" onClick={() => setopenAddsubcatmodal(false)} >
+                <th scope="col" className="py-3 pl-3">
                   Id
                 </th>
-                <th scope="col" class="py-3 pl-2">
+                <th scope="col" className="py-3 pl-2">
                   User
                 </th>
-                <th scope="col" class="py-3 pl-2">
+                <th scope="col" className="py-3 pl-2">
                   Email
                 </th>
-                <th scope="col" class="py-3 pl-2">
+                <th scope="col" className="py-3 pl-2">
                   Phone
                 </th>
-                <th scope="col" class="py-3 pl-2">
+                <th scope="col" className="py-3 pl-2">
                   Date Joined
                 </th>
-                <th scope="col" class="py-3 pl-2">
+                <th scope="col" className="py-3 pl-2">
                   Date Left
                 </th>
-                <th scope="col" class="py-3 px-3">
+                <th scope="col" className="py-3 px-3">
                   Action
                 </th>
               </tr>
             </thead>
             <tbody>
-              {staticdata.map((val, ind) => (
-                <tr class="font-dm border-[#7E7E7E] border-b text-center">
+              {staticdataCopy !== false ? (<>
+{/* if searched */}
+                {staticdataCopy.map((object, index) => (
+                <tr className="font-dm border-[#7E7E7E] border-b text-center">
                   <th
                     scope="row"
-                    class="py-4 px-3 font-medium whitespace-nowrap text-white"
+                    className="py-4 font-medium whitespace-nowrap text-white"
+                    onClick={() => setopenAddsubcatmodal(false)} 
                   >
-                    #12344
+                    {object._id}
                   </th>
-                  <td class="py-4 pl-4 ">
-                    <div className="flex gap-2 items-center justify-center">
+                  <td className="py-4 ">
+                    <div className="flex gap-2 items-center justify-center" onClick={() => closeProfile(index)}>
+                     
                       <img
-                        class=" w-12 h-12 rounded-full"
-                        src={pfp}
-                        alt="Bonnie image"
+                        className=" w-10 h-10 rounded-full "
+                        src={object.image}
                       />
-                      Shaheer
+                      <p> {object.name} </p>
+                      
                     </div>
                   </td>
-                  <td class="py-4 ">Shaheer@gmail.com</td>
-                  <td class="py-4 ">$2999</td>
-                  <td class="py-4 ">23-august-2021</td>
-                  <td class="py-4 ">-</td>
+                  <td className="py-4" onClick={() => closeProfile(index)} >{object.email}</td>
+                  <td className="py-4 " onClick={() => closeProfile(index)} >{object.phone}</td>
+                  <td className="py-4 " onClick={() => closeProfile(index)} >{object.dateJoined}</td>
+                  <td className="py-4 " onClick={() => closeProfile(index)} >
+                  {object.dateLeft ? (
+                      <>{object.dateLeft}
+                      </>
+
+              ): (<>-</>)}
+              </td>
                   
                   <td>
                     <div className="flex pl-3 gap-10 justify-center">
-                     <NavLink to={"/userarea/playerprofile/profile"}><p>View Profile</p> </NavLink>
-                      <svg
-                        onClick={() => setopenAddsubcatmodal(true)}
+                     <NavLink to={"/userarea/playerprofile/profile"}><p >View Profile</p> </NavLink>
+                     <div className="mt-2">
+                     <svg
+                        onClick={() => openProfile(index)}
                         width="19"
                         height="5"
                         viewBox="0 0 19 5"
@@ -242,16 +310,140 @@ export default function UserArea() {
                           fill="white"
                         />
                       </svg>
+                     </div>
+                      
                     </div>
                   </td>
+        {/* view profile */}
+                  <tr>
+                  <div
+        id="defaultModal"
+        onClick={() => closeProfile(index)}
+        className={!object.isPlayer ? "hidden" : " flex  mt-3  bg-black/0 justify-center items-center"}
+      >
+        <div
+          id="defaultModal"
+
+          className={!object.isPlayer ? "hidden" : " flex absolute right-0 mb-3 mt-3  z-50 w-[150px] h-[80px]   bg-white rounded-xl justify-center content-center items-center"}
+        >
+          <div className="w-full ">
+            <h5 className="text-sm text-center  mb-2 mt-3  font-medium tracking-tight font-lexend  text-[#212121] ">
+            <NavLink to={"/userarea/playerprofile/profile"}>
+              <a href="userarea/playerprofile/profile">View Profile</a>
+              </NavLink>
+            </h5>
+            <div className="border-b-2 w-full border-[#212121]/50" />
+
+            <h5 className="text-[#212121] text-center mt-3 mb-3  text-sm font-normal font-lexend cursor-pointer  " onClick={() => setopenAddsubcatmodal(false)} >
+              <NavLink to={"chat"}>
+                <a href="/chat"  > chat</a>
+              </NavLink>
+              
+            </h5>
+          </div>
+        </div>
+      </div>
+                  </tr>
                 </tr>
-              ))}
-            </tbody>
+              ))}</>) : (<>
+
+                {staticdata === false? (
+                <>
+                
+                </>
+// if not searched
+              ): (<> 
+              {staticdata.map((object, index) => (
+                <tr className="font-dm border-[#7E7E7E] border-b text-center">
+                  <th
+                    scope="row"
+                    className="py-4 font-medium whitespace-nowrap text-white"
+                    onClick={() => closeProfile(index)} 
+                  >
+                    {object._id}
+                  </th>
+                  <td className="py-4 ">
+                    <div className="flex gap-2 items-center justify-center" onClick={() => closeProfile(index)}>
+                     
+                      <img
+                        className=" w-10 h-10 rounded-full "
+                        src={object.image}
+                      />
+                      <p> {object.name} </p>
+                      
+                    </div>
+                  </td>
+                  <td className="py-4" onClick={() => closeProfile(index)} >{object.email}</td>
+                  <td className="py-4 " onClick={() => closeProfile(index)} >{object.phone}</td>
+                  <td className="py-4 " onClick={() => closeProfile(index)} >{object.dateJoined}</td>
+                  <td className="py-4 " onClick={() => closeProfile(index)} >
+                  {object.dateLeft ? (
+                      <>{object.dateLeft}
+                      </>
+
+              ): (<>-</>)}
+              </td>
+                  
+                  <td>
+                    <div className="flex pl-3 gap-10 justify-center">
+                     <NavLink to={"/userarea/playerprofile/profile"}><p >View Profile</p> </NavLink>
+                     <div className="mt-2">
+                     <svg
+                        onClick={() => openProfile(index)}
+                        width="19"
+                        height="5"
+                        viewBox="0 0 19 5"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M9.201 5.68597e-08C8.91196 5.07687e-08 8.62575 0.0569305 8.35871 0.167541C8.09168 0.278152 7.84904 0.440276 7.64466 0.644658C7.44028 0.84904 7.27815 1.09168 7.16754 1.35871C7.05693 1.62575 7 1.91196 7 2.201C7 2.49004 7.05693 2.77625 7.16754 3.04329C7.27815 3.31032 7.44028 3.55296 7.64466 3.75734C7.84904 3.96172 8.09168 4.12385 8.35871 4.23446C8.62575 4.34507 8.91196 4.402 9.201 4.402C9.78474 4.40187 10.3445 4.16985 10.7572 3.75699C11.1699 3.34413 11.4016 2.78424 11.4015 2.2005C11.4014 1.61676 11.1693 1.05698 10.7565 0.644304C10.3436 0.231631 9.78374 -0.000132534 9.2 5.68597e-08H9.201ZM2.201 5.68597e-08C1.91196 5.07687e-08 1.62575 0.0569305 1.35871 0.167541C1.09168 0.278152 0.84904 0.440276 0.644658 0.644658C0.440276 0.84904 0.278152 1.09168 0.167541 1.35871C0.0569305 1.62575 0 1.91196 0 2.201C0 2.49004 0.0569305 2.77625 0.167541 3.04329C0.278152 3.31032 0.440276 3.55296 0.644658 3.75734C0.84904 3.96172 1.09168 4.12385 1.35871 4.23446C1.62575 4.34507 1.91196 4.402 2.201 4.402C2.78474 4.40187 3.34452 4.16985 3.7572 3.75699C4.16987 3.34413 4.40163 2.78424 4.4015 2.2005C4.40137 1.61676 4.16935 1.05698 3.75649 0.644304C3.34363 0.231631 2.78474 -0.000132534 2.201 5.68597e-08ZM16.201 5.68597e-08C15.912 5.07687e-08 15.6258 0.0569305 15.3587 0.167541C15.0917 0.278152 14.849 0.440276 14.6447 0.644658C14.4403 0.84904 14.2782 1.09168 14.1675 1.35871C14.0569 1.62575 14 1.91196 14 2.201C14 2.49004 14.0569 2.77625 14.1675 3.04329C14.2782 3.31032 14.4403 3.55296 14.6447 3.75734C14.849 3.96172 15.0917 4.12385 15.3587 4.23446C15.6258 4.34507 15.912 4.402 16.201 4.402C16.7847 4.40187 17.3445 4.16985 17.7572 3.75699C18.1699 3.34413 18.4016 2.78424 18.4015 2.2005C18.4014 1.61676 18.1693 1.05698 17.7565 0.644304C17.3436 0.231631 16.7847 -0.000132534 16.201 5.68597e-08Z"
+                          fill="white"
+                        />
+                      </svg>
+                     </div>
+                      
+                    </div>
+                  </td>
+        {/* view profile */}
+                  <tr>
+                  <div
+        id="defaultModal"
+        onClick={() => closeProfile(index)}
+        className={!object.isPlayer ? "hidden" : " flex  mt-3  bg-black/0 justify-center items-center"}
+      >
+        <div
+          id="defaultModal"
+
+          className={!object.isPlayer ? "hidden" : " flex absolute right-0 mb-3 mt-3  z-50 w-[150px] h-[80px]   bg-white rounded-xl justify-center content-center items-center"}
+        >
+          <div className="w-full ">
+            <h5 className="text-sm text-center  mb-2 mt-3  font-medium tracking-tight font-lexend  text-[#212121] ">
+            <NavLink to={"/userarea/playerprofile/profile"}>
+              <a href="userarea/playerprofile/profile">View Profile</a>
+              </NavLink>
+            </h5>
+            <div className="border-b-2 w-full border-[#212121]/50" />
+
+            <h5 className="text-[#212121] text-center mt-3 mb-3  text-sm font-normal font-lexend cursor-pointer  " onClick={() => setopenAddsubcatmodal(false)} >
+              <NavLink to={"chat"}>
+                <a href="/chat"  > chat</a>
+              </NavLink>
+              
+            </h5>
+          </div>
+        </div>
+      </div>
+                  </tr>
+                </tr>
+              ))}</>)}</>)}
+              
+                     </tbody>
           </table>
         </div>
         {/* pagination */}
         <div className="flex items-center justify-end font-lexend">
-          <h4 class="self-center text-xl font-normal whitespace-nowrap text-white mr-4 my-5 ">
+          <h4 className="self-center text-xl font-normal whitespace-nowrap text-white mr-4 my-5 ">
             Page
           </h4>
           <svg
@@ -266,7 +458,7 @@ export default function UserArea() {
               fill="#7E7E7E"
             />
           </svg>
-          <h4 class="self-center text-xl font-normal whitespace-nowrap text-white ml-3 mr-4 my-5 ">
+          <h4 className="self-center text-xl font-normal whitespace-nowrap text-white ml-3 mr-4 my-5 ">
             1
           </h4>
           <svg
@@ -281,34 +473,13 @@ export default function UserArea() {
               fill="white"
             />
           </svg>
-          <h4 class="self-center text-xl font-normal whitespace-nowrap text-white mx-4 my-5 ">
+          <h4 className="self-center text-xl font-normal whitespace-nowrap text-white mx-4 my-5 ">
             out of 22
           </h4>
         </div>
       </div>
 
-      <div
-        id="defaultModal"
-        onClick={() => setopenAddsubcatmodal(false)}
-        class={!openAddsubcatmodal ? "hidden" : " flex absolute top-0 right-0 left-0  w-full h-screen   bg-black/0 justify-center items-center"}
-      >
-        <div
-          id="defaultModal"
-
-          class={!openAddsubcatmodal ? "hidden" : " flex absolute right-24 mb-3   z-50 w-[150px] h-[80px]   bg-white rounded-xl justify-center content-center items-center"}
-        >
-          <div className="w-full ">
-            <h5 class="text-sm text-center  mb-2 mt-3  font-medium tracking-tight font-lexend  text-[#212121] ">
-              <a href="userarea/playerprofile/profile">View Profile</a>
-            </h5>
-            <div class="border-b-2 w-full border-[#212121]/50" />
-
-            <h5 class="text-[#212121] text-center mt-3 mb-3  text-sm font-normal font-lexend cursor-pointer  " onClick={() => setopenAddsubcatmodal(false)} >
-              <a href="/chat"  > chat</a>
-            </h5>
-          </div>
-        </div>
-      </div>
+     
 
 
 

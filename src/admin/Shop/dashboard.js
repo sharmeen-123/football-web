@@ -339,7 +339,7 @@ const labels = [
           </div>
 
           {/*skill cards */}
-          <div className=" xl:w-4/12">
+          <div className=" xl:w-4/12 border-[#7E7E7E]">
             <div className="ml-10 mr-10  2xl:grid 2xl:grid-cols-1 ">
                 return <DashboardSidebar />;
             </div>

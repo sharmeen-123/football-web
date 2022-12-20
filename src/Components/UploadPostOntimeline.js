@@ -1,9 +1,37 @@
 import React from "react";
 import pfp from "../assets/pfp.png";
-import "../styles/font.css"
-export default function UploadPostOntimeline() {
+import "../styles/font.css";
+import { useState, useContext, useEffect } from "react";
+import { AuthContext } from "../admin/ActiveUser";
+import axios from "axios";
+
+export default function UploadPostOntimeline(props) {
   const hiddenFileInputphoto = React.useRef(null);
   const hiddenFileInputvideo = React.useRef(null);
+  const [post, setPost] =  useState(false);
+  const {group, setActiveGroup } = useContext(AuthContext);
+  const [url, setUrl] = useState(false);
+  const [video_url, setVideoUrl] = useState(false);
+  const [image, setImage] = useState(false);
+  const [Video, setVideo] = useState(false);
+  const [newsfeed, setNewsfeed] = useState(false);
+  const [name, setName] = useState(false)
+  const {id, setActiveId } = useContext(AuthContext);
+  const [Group, SetGroup] = useState(false);
+  const [Activemage, setActiveImage] = useState(false);
+  const today = new Date();
+  const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+  const time = today.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+  const api = axios.create({
+    baseURL : 'http://localhost:8000'
+  });
+  
+   
+  
+
   const handleClickphoto = (event) => {
     hiddenFileInputphoto.current.click();
   };
@@ -11,28 +39,147 @@ export default function UploadPostOntimeline() {
     hiddenFileInputvideo.current.click();
   };
   const handleChangephoto = (event) => {
-    const fileUploaded = event.target.files[0];
-    console.log(fileUploaded);
+    setImage(event.target.files[0]);
+    img();
   };
   const handleChangevideo = (event) => {
-    const fileUploaded = event.target.files[0];
-    console.log(fileUploaded);
+    setVideo(event.target.files[0]);
+    console.log(Video)
+    uploading_video();
   };
+  const handlePostChange = (event) => {
+    // 👇 Get input value from "event"
+    setPost(event.target.value);
+  };
+
+  const img = () => {
+    const data = new FormData();
+    data.append("file", image);
+    data.append("upload_preset","player_image");
+    //data.append("cloud_name","dyapmvalo");
+    axios.post("https://api.cloudinary.com/v1_1/dyapmvalo/image/upload", data)
+    .then((res) => {
+      setUrl(res.data.url)
+    })
+    .catch((err) => {
+      console.log(err)
+    });
+  }
+
+  const uploading_video = () => {
+    const data = new FormData();
+    data.append("file", Video);
+    data.append("upload_preset","player_image");
+    //data.append("cloud_name","dyapmvalo");
+    axios.post("https://api.cloudinary.com/v1_1/dyapmvalo/video/upload", data)
+    .then((res) => {
+      setVideo(res.data.url)
+      console.log(video_url)
+    })
+    .catch((err) => {
+      console.log(err)
+    });
+  }
+
+  const fillingarray = () => {
+    let posts = null;
+    if (post){
+      posts = {newpost : post,
+                    video_url : null,
+                    image_active : props.image,
+                    image : null,
+                    date : date,
+                  time : time,
+                name: props.name,
+              email : id};
+    if (!newsfeed){
+      sendPost(posts);
+      post = null;
+   }
+    }
+    if (video_url){
+      posts = {newpost : null,
+          video_url : video_url,
+          image : null,
+          image_active : props.image,
+          date : date,
+        time : time,
+        name: props.name,
+        email : id};
+        if (!newsfeed){
+          sendPost(posts);
+          post = null;
+       }
+       
+    }
+    if (url){
+      posts = {
+        newpost : null,
+        video_url : null,
+        image_active : props.image,
+        image :url,
+        date : date,
+      time : time,
+      name: props.name,
+      email : id};
+    }
+    if (!newsfeed){
+      sendPost(posts);
+      post = null;
+   }
+   setUrl(false);
+   setPost(false);
+   setVideoUrl(false);
+  }
+
+  // sending post
+  const sendPost = async (post) => {
+    if (props.newsfeed){
+      let res = await api.post('/newsfeed/posts', {post : post})
+    .then (
+      console.log("post send")
+    )
+    .catch((error) => {
+        console.log(error);
+    })
+    }
+    else{
+      let res = await api.put('/groups/UploadPost/'+group, {post : post})
+    .then (
+      
+      console.log("post send")
+      
+    )
+    .catch((error) => {
+        console.log(error);
+    })
+    }
+    setPost(false);
+    setVideoUrl(false);
+    setUrl(false)
+    
+  }
+
+
   return (
     <>
       <div className="mx-[22px] ">
         <div class=" px-7 pt-8 pb-6 font-lexend lg:w-full 2xl:w-[880px] min-w-sm text-center bg-[#212121] rounded-lg  ">
           <div className=" gap-5 flex mt-2">
-            <img
+            {Activemage ? (<>
+              <img
               class=" w-10 h-10 rounded-full "
-              src={pfp}
+              src={Activemage}
               alt="Bonnie image"
-            />
+            /></>) : (<>
+            <div class=" w-10 h-10 rounded-full bg-white"></div></>)}
+            
             <input
               type="text"
               class="w-full bg-[#1A1A1A] font-lexend  placeholder-lexend text-white text-sm font-normal rounded-lg block  pl-7 py-2.5  placeholder-gray-400 "
               placeholder="Post something"
               required=""
+              onChange={handlePostChange}
             />
           </div>
           <div className="mt-5">
@@ -91,7 +238,9 @@ export default function UploadPostOntimeline() {
                 onChange={handleChangevideo}
                 style={{ display: "none" }}
               />
-              <button class="inline-flex  py-2 px-7 ml-auto text-sm font-normal text-white bg-green-500 rounded-[4px] ">
+              <button 
+              onClick={fillingarray}
+              class="inline-flex  py-2 px-7 ml-auto text-sm font-normal text-white bg-green-500 rounded-[4px] ">
                 Post
               </button>
             </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import Header from "../Components/Header";
 import "../styles/font.css"
@@ -7,16 +7,80 @@ import pfp from "../assets/pfp.png";
 import "../styles/Dashboard.css"
 import "../styles/background.css"
 import { NavLink } from "react-router-dom";
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL : 'http://localhost:8000/event'
+});
 
 export default function Dashboard() {
   const [openAddsubcatmodal, setopenAddsubcatmodal] = useState(false);
   const [opendeletemodal, setopendeletemodal] = useState(false);
   const [addschedule, setschedule] = useState(false);
   const [event, setevent] = useState(false);
-  const [day, setday] = useState(false);
+  const [day, setDay] = useState(false);
+  const [month, setMonth] = useState(false);
+  const [yearr, setyear] = useState(false);
+  const [sceduleEvent, setSceduleEvent] = useState(false);
+  const [title, setTitle] = useState(false);
   const [date, setDate] = useState(new Date());
+  const [getEvents, SetAllGetEvents] = useState(false);
   var year = new Date().getFullYear();
-  
+
+  const handleDayChange = (event) => {
+    // 👇 Get input value from "event"
+    setDay(event.target.value);
+  };
+  const handleMonthChange = (event) => {
+    // 👇 Get input value from "event"
+    setMonth(event.target.value);
+  };
+  const handleYearChange = (event) => {
+    // 👇 Get input value from "event"
+    setyear(event.target.value);
+  };
+  const handleSceduleEventChange = (event) => {
+    // 👇 Get input value from "event"
+    setSceduleEvent(event.target.value);
+  };
+  const handleTitleChange = (event) => {
+    // 👇 Get input value from "event"
+    setTitle(event.target.value);
+  };
+
+
+  const data = async () => {
+    console.log("in data")
+    let res = await api.get('/getEvent')
+    .then((res) => {
+      if (res.data.data !== res.data.data.Prototype){
+        SetAllGetEvents(res.data.data);
+        console.log(getEvents);
+        
+        
+
+      }})
+    .catch((error) => {
+        console.log(error.response.data);
+        
+    })
+  };
+  data();
+
+
+
+  const eventsceduling = async () => {
+    let res = await api.post('/setevent', {day:day,month:month,year:yearr, event:sceduleEvent, title:title})
+    .then((res) => {
+      setevent(false)
+      setschedule(false)
+    })
+    .catch((error) => {
+        console.log(error.response.data);
+        
+    })
+  }
+
 
   const dataobject = [{ ind: 1 }, { ind: 1 }, { ind: 1 }, { ind: 1 }];
   const dataobject2 = [
@@ -59,18 +123,21 @@ export default function Dashboard() {
             Upcoming Schedule
           </h4>
           <div className="grid grid-cols-2 gap-4 pr-8 lg:mt-[36px] ">
-            {dataobject.map((val, ind) => (
+            {getEvents ? (<>
+              {getEvents.map((val, ind) => (
               <div
                 key={ind}
                 class="schedule flex   py-1 pr-[16px] w-full h-full  rounded-xl   shadow-md bg-gray-800 "
               >
                 <div className=" border-4 rounded-r-full  border-green-500 mr-5 my-4"></div>
                 <div>
-                  <h5 class="mb-2 mt-3 text-[16px] leading-5 lexend font-normal text-white">
-                    Noteworthy technology acquisitions 2021
-                  </h5>
+                  {val.title ? (<>
+                    <h5 class="mb-2 mt-3 text-[16px] leading-5 lexend font-normal text-white">
+                    {val.title}
+                  </h5></>): (<></>)}
+                  
                   <p class="lexend text-white mt-2 mb-3 font-light text-sm ">
-                    Here are the biggest enterprise technology acquisitions of
+                    {val.event}
                   </p>
                   <div className="flex items-center mb-4 gap-4 mt-2">
                     <svg
@@ -86,7 +153,7 @@ export default function Dashboard() {
                       />
                     </svg>
                     <p class="text-[15px] leading-5   font-light   text-gray-400">
-                      Sep 29, 2022
+                     {val.month}, {val.day}, {val.year}
                     </p>
                     <svg
                       className="ml-auto"
@@ -104,7 +171,8 @@ export default function Dashboard() {
                   </div>
                 </div>
               </div>
-            ))}
+            ))}</>) : (<></>)}
+           
           </div>
         </div>
 
@@ -303,14 +371,16 @@ export default function Dashboard() {
                 required=""
                 min={1}
                 max = {31}
+                onChange={handleDayChange}
               />
               <input
                 type="number"
-                class="bg-[#808080]  text-white text-sm rounded-lg  placeholder-lexend block  pl-10 p-2.5 mb-5 ml-3 placeholder-white"
+                class="bg-[#808080]  text-white text-sm rounded-lg  placeholder-lexend  pl-10 p-2.5 mb-5 ml-3 placeholder-white"
                 placeholder="Month"
                 required=""
                 min={1}
                 max = {12}
+                onChange={handleMonthChange}
               />
               <input
                 type="number"
@@ -319,11 +389,12 @@ export default function Dashboard() {
                 required=""
                 min={1970}
                 max = {year}
+                onChange={handleYearChange}
               />
             </div>
             <div className="flex items-center justify-center my-2">
               <button 
-              onClick={() => setschedule(false)}
+              onClick={() => setevent(true)}
               class="inline-flex font-lexend mb-12 items-center py-2.5 px-8  text-sm font-normal text-white bg-green-500 rounded-[4px] m-2">
                 Set of Day
               </button>
@@ -381,16 +452,18 @@ export default function Dashboard() {
                 class="bg-[#212121]  w-full text-white text-sm rounded-lg  block  pl-10 p-2.5 mb-5 placeholder-[#7E7E7E] placeholder-lexend"
                 placeholder="Title"
                 required=""
+                onChange={handleTitleChange}
               />
               <textarea class="bg-[#212121]  w-full h-40 text-white text-sm rounded-lg  block  pl-10 p-2.5 mb-5 placeholder-[#7E7E7E] placeholder-lexend"
-                        placeholder="Description">
+                        placeholder="Description"
+                        onChange={handleSceduleEventChange}>
 
               </textarea>
               
             </div>
             <div className="flex items-center justify-center my-2">
               <button 
-              onClick={() => !setevent(false) + !setschedule(false)}
+              onClick={eventsceduling}
               class="inline-flex font-lexend mb-12 items-center py-2.5 px-8  text-sm font-normal text-white bg-green-500 rounded-[4px] m-2">
                 Set Event
               </button>

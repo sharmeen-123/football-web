@@ -1,8 +1,47 @@
-import React from "react";
+import React, { useState } from "react";
 import pfp from "../assets/pfp.png";
 import pic1 from "../assets/pic1.png"
 import "../styles/font.css"
+import axios from "axios";
+import GroupMembers from "./GroupMembers";
 export default function RecentActivityies(props) {
+  const [post, SetPost] = useState(false);
+  const [recent, setRecent] = useState(false);
+  const today = new Date();
+  const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+  const time = today.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+
+  
+  const api = axios.create({
+    baseURL : 'http://localhost:8000'
+  });
+
+
+  // getting all posts
+  const memberName = async () => {
+      let res = await api.get('/newsfeed/getnewsfeed')
+      .then ( (res) => {
+        
+        if (res.data.data !== res.data.data.Prototype){
+          let member = (res.data.data);
+          SetPost(member.reverse());
+         
+        }
+        }
+      )
+      .catch((error) => {
+          console.log(error);
+      })
+    
+    
+  }
+  memberName()
+
+ 
+  
   const staticdata = [
     {
       id: 1,
@@ -48,9 +87,15 @@ export default function RecentActivityies(props) {
             )}
       </div>
       <div className="">
-        {" "}
-        {staticdata.slice(0, 3).map((val, ind) => (
-          <div className="flex gap-2 mt-5 ">
+        {post === false ? (<></>): (<>
+          {post.map((val, ind) => (
+          <>
+          {val.post.date === date? (<>
+
+            {Math.floor((val.post.time-time)/(24*3600*1000)) < 60? (<>
+              <p>helloo</p>
+            </>):(<></>)}
+            <div className="flex gap-2 mt-5 ">
             <div className="flex items-center">
               <img
                 class=" w-8 h-8 rounded-full shadow-lg"
@@ -80,7 +125,16 @@ export default function RecentActivityies(props) {
             )}
            
           </div>
-        ))}
+
+
+
+
+          </>) : (<></>)}
+          </>
+          
+          
+        ))}</>)}
+        
       </div>
     </>
   );
