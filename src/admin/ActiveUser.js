@@ -111,7 +111,6 @@ function AuthProvider({ children }) {
           ) : (
             <>
         <Route element={<CoachSideBarLayout />}>
-          <Route exact path="/" element={<CoachDashboard />} />
           <Route exact path="/dashboard" element={<CoachDashboard />} />
           <Route exact path="/playerarea" element={<CoachPlayerareaAttendence/>} />
           <Route

@@ -11,7 +11,8 @@ export default function Club2() {
   const[folderName, setFolderName] = useState(false);
   const[error, setError] = useState(false);
   const [folders, setfolders] = useState(false);
-  const [document, setDocument] = useState("Documents")
+  const [document, setDocument] = useState("Documents");
+  const [fileupload, setfileupload] = useState(false);
 
   const api = axios.create({
     baseURL : 'http://localhost:8000/clubhub'
@@ -63,14 +64,14 @@ export default function Club2() {
 
   const UploadFile = async () => {
     
-    // let res = await api.post('/uploadfile', {name: folderName})
-    // .then (
-    //   setError(false)
-    // )
-    // .catch((error) => {
-    //     setError(error.response.data);
-    //     console.log(error);
-    // })
+    let res = await api.post('/uploadfile/'+document, {file: fileupload})
+    .then (
+      setError(false)
+    )
+    .catch((error) => {
+        setError(error.response.data);
+        console.log(error);
+    })
   }
 
   
@@ -81,7 +82,11 @@ export default function Club2() {
     hiddenFileInput.current.click();
   };
   const handleChange = (event) => {
-    const fileUploaded = event.target.files[0];
+    setfileupload(event.target.files[0]);
+    console.log("file uploaded")
+    console.log(fileupload)
+    console.log("file uploaded")
+    UploadFile()
   };
   const handleFileName = (event) => {
     setFolderName(event.target.value);

@@ -68,7 +68,17 @@ export const Login = () =>{
     })
     }
     else{
-      setLink("/dashboard")
+      let res = await api.post('/coach/login', {password:passw,email:email})
+    .then((res) =>{
+      setActiveId(email);
+        setLink("/dashboard")
+        
+    }
+    )
+    .catch((error) => {
+        setError(error.response.data);
+        setLink("")
+    })
     }
     
   }

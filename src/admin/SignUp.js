@@ -58,7 +58,6 @@ export default function SignUp() {
         let res = await api.post('/admin/register', {password:pass, name:name, email:email, phone:phone, isAdmin:isAdmin})
     .then((response) =>{
         setLink("/")
-        setError(false)
     }
     )
     .catch((error) => {
@@ -67,7 +66,15 @@ export default function SignUp() {
     })
     }
     else{
+        let res = await api.post('/coach/register', {password:pass, name:name, email:email, phone:phone, iscoach:isAdmin})
+    .then((response) =>{
         setLink("/")
+    }
+    )
+    .catch((error) => {
+        setError(error.response.data);
+        setLink("")
+    })
     }
     
   }
@@ -233,7 +240,7 @@ export default function SignUp() {
                 <div>
                 <p className="text-white font-lexend text-sm p-3 text-center">{error}</p>
                 </div>
-                <NavLink to="">
+                <NavLink to={link}>
                         <button className="text-white rounded-lg font-lexend bg-[#1DB954] w-full text-sm  pt-4 pb-4"
                         onClick={createAdmin}>Register</button>   
                         </NavLink>
@@ -245,7 +252,7 @@ export default function SignUp() {
               ):(
                 <>
                  <div className="flex-1 p-2 pl-8 pr-8 mt-6">
-                        <NavLink to="/dashboard">
+                        <NavLink to={link}>
                         <button className="text-white rounded-lg font-lexend bg-[#1DB954] w-full text-sm  pt-4 pb-4"
                         onClick={createAdmin}>Register</button>
                         </NavLink>

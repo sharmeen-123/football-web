@@ -7,7 +7,39 @@ import MoreProfiles from "../Components/MoreProfiles";
 import RecentActivityies from "../Components/RecentActivityies";
 import TimelinePost from "../Components/TimelinePost";
 import UploadPostOntimeline from "../Components/UploadPostOntimeline";
+import { useState, useEffect, useContext } from "react";
+import axios from "axios";
+import { AuthContext } from "../admin/ActiveUser";
+
 export default function NewsFeed() {
+
+  const [name, setName] = useState(false);
+  const [pic, setpic] = useState(false);
+  const {id, setActiveId } = useContext(AuthContext);
+  const api = axios.create({
+    baseURL : 'http://localhost:8000/coach/'
+  });
+
+  
+  
+   // getting players from database
+  const data = async () => {
+    console.log("in data")
+    let res = await api.get('getcoachByEmail/'+id)
+    .then((res) => {
+      if (res.data.data !== res.data.data.Prototype){
+        setName(res.data.data.name);
+        setpic(res.data.data.image);
+        console.log(name)
+
+      }})
+    .catch((error) => {
+        console.log(error.response.data);
+        
+    })
+  };
+  data();
+
   return (
     <>
       <div className="flex-col w-full ">
@@ -21,8 +53,8 @@ export default function NewsFeed() {
 
           {/* center Post */}
           <div className=" w-full overflow-y-scroll scrollbar mt-10">
-            <UploadPostOntimeline newsfeed = {true}/>
-            <TimelinePost />
+            <UploadPostOntimeline newsfeed = {true} name = {name} image = {pic}/>
+            <TimelinePost newsfeed = {true}/>
           </div>
 
           {/* right side-bar parent profile */}
