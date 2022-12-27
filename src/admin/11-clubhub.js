@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import ClubhubSidebar from "../Components/clubhub-sidebar";
 import Header from "../Components/Header";
 import "../styles/font.css";
-import axios from "axios";
+import axios from '../axios';
 export default function Club2() {
 
   // onciick button uppload video
@@ -14,10 +14,6 @@ export default function Club2() {
   const [document, setDocument] = useState("Documents");
   const [fileupload, setfileupload] = useState(false);
 
-  const api = axios.create({
-    baseURL : 'http://localhost:8000/clubhub'
-  });
-
   useEffect (()=>{
     console.log("in useeffect")
     allFolders();
@@ -27,7 +23,7 @@ export default function Club2() {
   // getting folders from database
   const allFolders = async () => {
     console.log("in all players")
-    let res = await api.get('/getfolder')
+    let res = await axios.get('/clubhub/getfolder')
     .then((res) => {
       if (res.data.data !== res.data.data.Prototype){
         setfolders(res.data.data);
@@ -52,7 +48,7 @@ export default function Club2() {
   }
   const createFolder = async () => {
     
-    let res = await api.post('/createfolder', {name: folderName})
+    let res = await axios.post('/clubhub/createfolder', {name: folderName})
     .then (
       setError(false)
     )
@@ -64,7 +60,7 @@ export default function Club2() {
 
   const UploadFile = async () => {
     
-    let res = await api.post('/uploadfile/'+document, {file: fileupload})
+    let res = await axios.post('/clubhub/uploadfile/'+document, {file: fileupload})
     .then (
       setError(false)
     )

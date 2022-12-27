@@ -4,22 +4,19 @@ import grouplist from "../assets/grouplist.png";
 import "../styles/font.css";
 import { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../admin/ActiveUser";
-import axios from "axios";
+import axios from '../axios';
 
 
 export default function GroupMembers() {
   const [Group, SetGroup] = useState(false);
   const [name, setName] = useState(false);
-  const api = axios.create({
-    baseURL : 'http://localhost:8000/groups'
-  });
   const {group, setActiveGroup } = useContext(AuthContext); 
   const {id, setActiveId } = useContext(AuthContext);
 
    // getting all posts
    const memberName = async () => {
 
-    let res = await api.get('/getgroupbyId/'+group)
+    let res = await axios.get('/groups/getgroupbyId/'+group)
     .then ( (res) => {
       
       if (res.data.data !== res.data.data.Prototype){

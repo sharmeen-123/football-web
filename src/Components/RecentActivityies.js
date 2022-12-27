@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import pfp from "../assets/pfp.png";
 import pic1 from "../assets/pic1.png"
 import "../styles/font.css"
-import axios from "axios";
+import axios from '../axios';
 import GroupMembers from "./GroupMembers";
 export default function RecentActivityies(props) {
   const [post, SetPost] = useState(false);
@@ -14,15 +14,10 @@ export default function RecentActivityies(props) {
     minute: "2-digit",
   })
 
-  
-  const api = axios.create({
-    baseURL : 'http://localhost:8000'
-  });
-
 
   // getting all posts
   const memberName = async () => {
-      let res = await api.get('/newsfeed/getnewsfeed')
+      let res = await axios.get('/newsfeed/getnewsfeed')
       .then ( (res) => {
         
         if (res.data.data !== res.data.data.Prototype){
@@ -40,40 +35,6 @@ export default function RecentActivityies(props) {
   }
   memberName()
 
- 
-  
-  const staticdata = [
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-  ];
   return (
     <>
       <div className=" flex items-center justify-between ">

@@ -3,7 +3,7 @@ import { useState, useEffect, useContext } from "react";
 import Header from "../Components/Header";
 import "../styles/font.css"
 import { NavLink } from "react-router-dom";
-import axios from "axios";
+import axios from '../axios';
 import { AuthContext } from "./ActiveUser"
 export default function Groups() {
 
@@ -12,10 +12,7 @@ export default function Groups() {
   const [staticdataCopy, setStaticDataCopy] = useState(false);
   const {id, setActiveId } = useContext(AuthContext);
   const {group, setActiveGroup } = useContext(AuthContext);
-  
-  const api = axios.create({
-    baseURL : 'http://localhost:8000'
-  });
+
 
   useEffect (()=>{
     data();
@@ -36,7 +33,7 @@ export default function Groups() {
 
   const data = async() => {
     let email = id;
-    let res = await api.get("/groups/getgroup/"+ email)
+    let res = await axios.get("/groups/getgroup/"+ email)
     .then((res) => {
       if (res.data.data !== res.data.data.Prototype){
         setStaticData(res.data.data);

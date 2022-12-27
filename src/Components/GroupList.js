@@ -2,16 +2,12 @@ import React from "react";
 import { useState, useEffect, useContext } from "react";
 import grouplist from "../assets/grouplist.png";
 import "../styles/font.css";
-import axios from "axios";
+import axios from '../axios';
 import { AuthContext } from "../admin/ActiveUser";
 
 export default function GroupList() {
   const [groups, setGroup] = useState(false);
   const {id, setActiveId } = useContext(AuthContext);
-
-  const api = axios.create({
-    baseURL : 'http://localhost:8000'
-  });
 
   useEffect (()=>{
 
@@ -20,7 +16,7 @@ export default function GroupList() {
 
   const data = async() => {
     let email = id;
-    let res = await api.get("/groups/getgroup/"+ email)
+    let res = await axios.get("/groups/getgroup/"+ email)
     .then((res) => {
       if (res.data.data !== res.data.data.Prototype){
         setGroup(res.data.data);

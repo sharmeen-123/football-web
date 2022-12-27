@@ -6,7 +6,7 @@ import MoreProfiles from "../Components/MoreProfiles";
 import TimelinePost from "../Components/TimelinePost";
 import GroupMembers from "../Components/GroupMembers";
 import { useState, useEffect, useContext } from "react";
-import axios from "axios";
+import axios from '../axios';
 import { AuthContext } from "./ActiveUser"
 
 import "../styles/font.css";
@@ -19,9 +19,6 @@ export default function Selectedgroup(props) {
   const [pic, setpic] = useState(false);
   const {group, setActiveGroup } = useContext(AuthContext);
   const {id, setActiveId } = useContext(AuthContext);
-  const api = axios.create({
-    baseURL : 'http://localhost:8000/groups'
-  });
   
   
   useEffect (()=>{
@@ -30,7 +27,7 @@ export default function Selectedgroup(props) {
    // getting all posts
    const memberpic = async () => {
 
-    let res = await api.get('/getgroupbyId/'+group)
+    let res = await axios.get('/groups/getgroupbyId/'+group)
     .then ( (res) => {
       
       if (res.data.data !== res.data.data.Prototype){
@@ -50,7 +47,7 @@ export default function Selectedgroup(props) {
    // getting players from database
   const data = async () => {
     console.log("in data")
-    let res = await api.get('getadminByEmail/'+id)
+    let res = await axios.get('getadminByEmail/'+id)
     .then((res) => {
       if (res.data.data !== res.data.data.Prototype){
         setName(res.data.data.name);

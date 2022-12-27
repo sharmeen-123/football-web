@@ -1,17 +1,86 @@
-import React from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Header from "../Components/Header";
 import RecentChats from "../Components/RecentChats";
 import "../styles/font.css"
 import ChatBox from "../Components/ChatBox";
 import ChatParentalProfile from "../Components/ChatParentalProfile";
+import { AuthContext } from "../admin/ActiveUser"
+import axios from '../axios';
 export default function Chat() {
   const hiddenFileInput = React.useRef(null);
+  const [img, setImg] = useState(false);
+  const [Recievername, setRecieverName] = useState(false);
+  const [to, setTo] = useState(false);
+  const [status, setStatus] = useState(false);
+  const [sendChat, setSendChat] = useState(false);
+  const [url, setUrl] = useState("no image");
+  const [image, setImage] = useState("");
+  const [phone, setPhone] = useState(false);
+  const [position, setPosition] = useState(false);
+  const [Senderphone, setSenderPhone] = useState(false);
+  const [Senderposition, setSenderPosition] = useState(false);
+  const [Sendername, setSenderName] = useState(false);
+  const [SenderImg, setSenderImg] = useState(false);
+  const [chat, setChat] = useState();
+  const {id, setActiveId } = useContext(AuthContext);
+
+  const imgUpload = () => {
+    const data = new FormData();
+    data.append("file", image);
+    data.append("upload_preset","player_image");
+    //data.append("cloud_name","dyapmvalo");
+    axios.post("https://api.cloudinary.com/v1_1/dyapmvalo/image/upload", data)
+    .then((res) => {
+      setUrl(res.data.url)
+    })
+    .catch((err) => {
+      console.log(err)
+    });
+  }
+
+  const AllMessages = async () => {
+    console.log("in messages")
+    let res = await axios.get('/chat/getmessage/'+id+"/"+to)
+    .then((res) => {
+      setChat(res.data);
+      console.log(chat)
+      })
+    .catch((error) => {
+        console.log(error.response.data);
+      })
+  }
+  
+
+  const sendMsg = async () => {
+    let res = await axios.post('/chat/sendmessage', {to:to, reciever_img:img, reciever_status:status, reciever:Recievername, message:sendChat, from:id, image:url, position:position, phone:phone, Sender:Sendername, Senderphone:Senderphone, Senderposition:Senderposition})
+    .then ((res) => 
+      {setUrl("no image");
+      console.log(id);
+      console.log(to)
+      setSendChat(false)
+      console.log("msg sent")}
+    )
+    .catch((error) => {
+        console.log(error);
+    })
+    AllMessages();
+
+
+  }
+  const handleChangeMsg = (event) => {
+    setSendChat(event.target.value);
+    console.log(sendChat)
+  }
 
   const handleClick = (event) => {
     hiddenFileInput.current.click();
   };
   const handleChange = (event) => {
-    const fileUploaded = event.target.files[0];
+    setImage(event.target.files[0]);
+    imgUpload();
+    sendMsg();
+    
+   
   };
   return (
     <>
@@ -21,15 +90,16 @@ export default function Chat() {
         <div className="flex   divide-x divide-[#7e7e7e] h-screen mb-10">
           {/* left side-bar details  */}
           <div className="w-2/5 ml-8 mr-3">
-            <RecentChats />
+            <RecentChats setRecieverName = {setRecieverName} setState={setStatus} setTo = {setTo} setImg = {setImg} setPosition = {setPosition} setPhone = {setPhone} setChat={setChat} setSenderName={setSenderName} setSenderImg = {setSenderImg} setSenderPhone={setSenderPhone} setSenderPosition={setSenderPosition}/>
           </div>
 
           {/* center Post */}
           <div className=" w-full mb-5">
-            <ChatBox />
+            <ChatBox SenderImg={SenderImg} SenderName = {Sendername} RecieverName = {Recievername} status={status} to = {to} img={img} chat={chat}/>
             <div className="my-[20px] mx-10 mb-10">
               <div className="relative">
-                <div className="cursor-pointer absolute top-3.5 right-2">
+                <div className="cursor-pointer absolute top-3.5 right-2"
+                onClick={sendMsg}>
                   <svg
                     width="15"
                     height="12"
@@ -68,6 +138,7 @@ export default function Chat() {
                   class="bg-[#212121]   text-white text-sm placeholder-lexend text-lexend rounded-md w-full pl-10 p-2.5  placeholder-gray-400"
                   placeholder="Type Message Here"
                   required=""
+                  onChange={handleChangeMsg}
                 />
               </div>
             </div>
@@ -76,7 +147,7 @@ export default function Chat() {
           {/* right side-bar parent profile */}
 
           <div className="  mr-10 mb-4  w-1/4">
-            <ChatParentalProfile />
+            <ChatParentalProfile RecieverName = {Recievername} status={status} to = {to} img={img} phone={phone} position={position}/>
           </div>
         </div>
       </div>

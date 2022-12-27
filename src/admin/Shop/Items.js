@@ -4,7 +4,7 @@ import Header from "../../Components/Header";
 import "../../styles/font.css"
 import Minus from "../../assets/Minus.png"
 import { NavLink } from "react-router-dom";
-import axios from "axios";
+import axios from '../../axios';
 
 
 
@@ -18,9 +18,6 @@ export default function Items() {
   const[quantity, setQuantity] = useState(false);
   const[status, setStatus] = useState(false);
   const[price,setPrice] = useState(false);
-  const api = axios.create({
-    baseURL : 'http://localhost:8000'
-  });
 
   useEffect (()=>{
     data();
@@ -29,7 +26,7 @@ export default function Items() {
    // getting items from database
    const data = async () => {
     console.log("in data")
-    let res = await api.get('/shop/getItems')
+    let res = await axios.get('/shop/getItems')
     .then((res) => {
       if (res.data.data !== res.data.data.Prototype){
         setAllItems(res.data.data);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import Header from "../Components/Header";
 import "../styles/font.css"
-import axios from "axios";
+import axios from '../axios';
 import { AuthContext } from "./ActiveUser"
 
 export default function AddGroups() {
@@ -10,6 +10,7 @@ export default function AddGroups() {
   const [staticdata, setstaticData] = useState(false);
   const [players, setPlayers] = useState(false);
   const [admin, setAdmin] = useState(false);
+  const[coach,setCoach] = useState(false);
   const [url, setUrl] = useState(false);
   const [image, setImage] = useState(false);
   const [name, setName] = useState(false);
@@ -19,13 +20,10 @@ export default function AddGroups() {
   const [searchMember, setSearchMember] = useState(false);
   const [arrayCopy, setArrayCopy] = useState(false);
   const [arrayCopyAdmin, setArrayCopyAdmin] = useState(false);
+  const [arrayCopyCoach, setArrayCopyCoach] = useState(false)
   const [mem, setMem] = useState(false);
   const {id, setActiveId } = useContext(AuthContext);
   
-
-  const api = axios.create({
-    baseURL : 'http://localhost:8000'
-  });
 
   const handleClick = (event) => {
     hiddenFileInput.current.click();
@@ -50,6 +48,13 @@ export default function AddGroups() {
    
     setArrayCopyAdmin([... admin.filter(checkNames)]);
     console.log(arrayCopyAdmin);
+    handleCoachSearch()
+    
+  };
+  const handleCoachSearch = (event) => {
+   
+    setArrayCopyCoach([... coach.filter(checkNames)]);
+    console.log(arrayCopyCoach);
     
   };
 
@@ -86,7 +91,7 @@ export default function AddGroups() {
   // getting players from database
   const allPlayers = async () => {
     console.log("in all players")
-    let res = await api.get('/player/getplayers')
+    let res = await axios.get('/player/getplayers')
     .then((res) => {
       if (res.data.data !== res.data.data.Prototype){
         setPlayers(res.data.data);
@@ -102,10 +107,27 @@ export default function AddGroups() {
 
   // getting admins from database
   const allAdmin = async () => {
-    let res = await api.get('/admin/getadmin')
+    let res = await axios.get('/admin/getadmin')
     .then((res) => {
       if (res.data.data !== res.data.data.Prototype){
         setAdmin(res.data.data);
+        allCoach();
+
+
+      } 
+    })
+    .catch((error) => {
+        console.log(error.response.data);
+      })
+  }
+
+  // getting coach from database
+  const allCoach = async () => {
+    let res = await axios.get('/coach/getcoach')
+    .then((res) => {
+      if (res.data.data !== res.data.data.Prototype){
+        setCoach(res.data.data);
+        console.log(coach)
 
 
       } 
@@ -118,7 +140,7 @@ export default function AddGroups() {
   // getting admin of group from database
   const Admin = async () => {
     console.log("in Admin")
-    let res = await api.get('/admin/getadminByEmail/'+id)
+    let res = await axios.get('/admin/getadminByEmail/'+id)
     .then((res) => {
       if (res.data.data !== res.data.data.Prototype){
         setMem(res.data.data);
@@ -157,6 +179,18 @@ export default function AddGroups() {
       }
     
     })
+    coach.map((val, ind) => {
+      if (val.isAdmin === true){
+        groupMembers.push({
+          status : "coach",
+        member_id : val._id,
+        name : val.name,
+        email: val.email,
+        
+        })
+      }
+    
+    })
     Admin();
     if (mem !== false){
       groupMembers.push({
@@ -168,7 +202,7 @@ export default function AddGroups() {
       })
     }
   
-    let res = await api.post('/groups/creategroup', {name: name, pic:url, members : groupMembers, admin_email: id})
+    let res = await axios.post('/groups/creategroup', {name: name, pic:url, members : groupMembers, admin_email: id})
     .then (
       setError(false)
     )
@@ -190,6 +224,11 @@ export default function AddGroups() {
       arr[index].isAdmin = true;
       setAdmin(arr);
     }
+    else if (title === "coach"){
+      let arr = [... coach];
+      arr[index].iscoach = true;
+      setCoach(arr);
+    }
     
   }
 
@@ -204,6 +243,11 @@ export default function AddGroups() {
       let arr = [... admin];
       arr[index].isAdmin = false;
       setAdmin(arr);
+    }
+    else if (title === "coach"){
+      let arr = [... coach];
+      arr[index].iscoach = false;
+      setCoach(arr);
     }
 
   }
@@ -312,7 +356,7 @@ export default function AddGroups() {
                 />
               </div>
               <div>
-              {arrayCopy || arrayCopyAdmin ? (<>
+              {arrayCopy || arrayCopyAdmin || arrayCopyCoach ? (<>
                 {arrayCopy.map ((val, index) => {
                   return(
                     <div className="font-lexend flex items-center gap-3  mb-5">
@@ -375,14 +419,94 @@ export default function AddGroups() {
 
                 {arrayCopyAdmin.map((val, index) => {
                   return (
-                    <div className="font-lexend flex items-center gap-3  mb-5 w-full">
+                    <>
+                    {val.email !== id}(<>
+                      <div className="font-lexend flex items-center gap-3  mb-5 w-full">
                      
-                      <h4 className="flex-1 self-center text-base font-normal whitespace-nowrap text-white ml-10 pl-3">
+                      <div className="flex-1">
+                          <div className="flex">
+                          {val.image? (<>
+                            <img
+                        className=" w-10 h-10 rounded-full"
+                        src={val.image}
+                        alt = " "
+
+                      /></>) : (<div className=" w-10 h-10 rounded-full bg-white"></div>)}
+                          
+                      <h4 className="self-center text-base font-normal whitespace-nowrap text-white ml-2  ">
                         {val.name}
                       </h4>
-                      {admin[index].isAdmin === true ? (<>
+                          </div>
+                        
+                        </div>
+                     {admin[index].isAdmin === true ? (<>
+                       <button 
+                         onClick={() => removemember(index, "admin")}>
+                         <svg
+                       className="ml-auto"
+                         width="18"
+                         height="18"
+                         viewBox="0 0 18 18"
+                         fill="none"
+                         xmlns="http://www.w3.org/2000/svg"
+                       >
+                         <path
+                           d="M9 0C4.0275 0 0 4.0275 0 9C0 13.9725 4.0275 18 9 18C13.9725 18 18 13.9725 18 9C18 4.0275 13.9725 0 9 0ZM13.5 9.9H4.5V8.1H13.5V9.9Z"
+                           fill="#1DB954"
+                         />
+                       </svg>
+                       </button>
+                       </>):
+                     (<>
+                     <button 
+                     className="flex-1"
+                     onClick={() => addmembers(index, "admin")}>
+                         <svg
+                       className="ml-auto"
+                       
+                         width="18"
+                         height="18"
+                         viewBox="0 0 18 18"
+                         fill="none"
+                         xmlns="http://www.w3.org/2000/svg"
+                       >
+                         <path
+                           d="M9 0C4.02912 0 0 4.02912 0 9C0 13.9709 4.02912 18 9 18C13.9709 18 18 13.9709 18 9C18 4.02912 13.9709 0 9 0ZM13.68 9.72H9.72V13.68C9.72 13.871 9.64414 14.0541 9.50912 14.1891C9.37409 14.3241 9.19096 14.4 9 14.4C8.80904 14.4 8.62591 14.3241 8.49088 14.1891C8.35586 14.0541 8.28 13.871 8.28 13.68V9.72H4.32C4.12904 9.72 3.94591 9.64414 3.81088 9.50912C3.67586 9.37409 3.6 9.19096 3.6 9C3.6 8.80904 3.67586 8.62591 3.81088 8.49088C3.94591 8.35586 4.12904 8.28 4.32 8.28H8.28V4.32C8.28 4.12904 8.35586 3.94591 8.49088 3.81088C8.62591 3.67586 8.80904 3.6 9 3.6C9.19096 3.6 9.37409 3.67586 9.50912 3.81088C9.64414 3.94591 9.72 4.12904 9.72 4.32V8.28H13.68C13.871 8.28 14.0541 8.35586 14.1891 8.49088C14.3241 8.62591 14.4 8.80904 14.4 9C14.4 9.19096 14.3241 9.37409 14.1891 9.50912C14.0541 9.64414 13.871 9.72 13.68 9.72Z"
+                           fill="#FF7878"
+                         />
+                       </svg>
+                       </button></>)
+                     }
+                    
+                   </div></>): (<></>)
+                    </>
+                    
+                  );
+                })}
+                {arrayCopyCoach? (<>
+                  {arrayCopyCoach.map((val, index) => {
+                  return (
+                    <div className="font-lexend flex items-center gap-3  mb-5 w-full">
+                     
+                     <div className="flex-1">
+                          <div className="flex">
+                          {val.image? (<>
+                            <img
+                        className=" w-10 h-10 rounded-full"
+                        src={val.image}
+                        alt = " "
+
+                      /></>) : (<div className=" w-10 h-10 rounded-full bg-white"></div>)}
+                          
+                      <h4 className="self-center text-base font-normal whitespace-nowrap text-white ml-2  ">
+                        {val.name}
+                      </h4>
+                          </div>
+                        
+                        </div>
+                      {admin[index].iscoach === true ? (<>
                         <button 
-                          onClick={() => removemember(index, "admin")}>
+                          onClick={() => removemember(index, "coach")}>
                           <svg
                         className="ml-auto"
                           width="18"
@@ -401,7 +525,7 @@ export default function AddGroups() {
                       (<>
                       <button 
                       className="flex-1"
-                      onClick={() => addmembers(index, "admin")}>
+                      onClick={() => addmembers(index, "coach")}>
                           <svg
                         className="ml-auto"
                         
@@ -422,6 +546,7 @@ export default function AddGroups() {
                     </div>
                   );
                 })}
+                </>) : (<></>)}
               </>) : (<>
               <div>
               {players !== false ? (<>
@@ -497,10 +622,23 @@ export default function AddGroups() {
                   
                   return (
                     <div className="font-lexend flex items-center gap-3  mb-5 w-full">
-                     
-                      <h4 className="flex-1 self-center text-base font-normal whitespace-nowrap text-white ml-10 pl-3">
+                     {val.email === id?(<></>):(<>
+                      <div className="flex-1">
+                          <div className="flex">
+                          {val.image? (<>
+                            <img
+                        className=" w-10 h-10 rounded-full"
+                        src={val.image}
+                        alt = " "
+
+                      /></>) : (<div className=" w-10 h-10 rounded-full bg-white"></div>)}
+                          
+                      <h4 className="self-center text-base font-normal whitespace-nowrap text-white ml-2  ">
                         {val.name}
                       </h4>
+                          </div>
+                        
+                        </div>
                       {admin[index].isAdmin === true ? (<>
                         <button 
                           onClick={() => removemember(index, "admin")}>
@@ -539,12 +677,84 @@ export default function AddGroups() {
                         </svg>
                         </button></>)
                       }
+                     </>)}
                      
                     </div>
                   );
                 })}</>
     
                   )}
+
+{coach === false? (<>
+              </>): (
+                    <>
+                     {coach.map((val, index) => {
+                  
+                  
+                  return (
+                    <div className="font-lexend flex items-center gap-3  mb-5 w-full">
+                     
+                     <div className="flex-1">
+                          <div className="flex">
+                          {val.image? (<>
+                            <img
+                        className=" w-10 h-10 rounded-full"
+                        src={val.image}
+                        alt = " "
+
+                      /></>) : (<div className=" w-10 h-10 rounded-full bg-white"></div>)}
+                          
+                      <h4 className="self-center text-base font-normal whitespace-nowrap text-white ml-2  ">
+                        {val.name}
+                      </h4>
+                          </div>
+                        
+                        </div>
+                      {coach[index].iscoach === true ? (<>
+                        <button 
+                          onClick={() => removemember(index, "coach")}>
+                          <svg
+                        className="ml-auto"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 18 18"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M9 0C4.0275 0 0 4.0275 0 9C0 13.9725 4.0275 18 9 18C13.9725 18 18 13.9725 18 9C18 4.0275 13.9725 0 9 0ZM13.5 9.9H4.5V8.1H13.5V9.9Z"
+                            fill="#1DB954"
+                          />
+                        </svg>
+                        </button>
+                        </>):
+                      (<>
+                      <button 
+                      className="flex-1"
+                      onClick={() => addmembers(index, "coach")}>
+                          <svg
+                        className="ml-auto"
+                        
+                          width="18"
+                          height="18"
+                          viewBox="0 0 18 18"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M9 0C4.02912 0 0 4.02912 0 9C0 13.9709 4.02912 18 9 18C13.9709 18 18 13.9709 18 9C18 4.02912 13.9709 0 9 0ZM13.68 9.72H9.72V13.68C9.72 13.871 9.64414 14.0541 9.50912 14.1891C9.37409 14.3241 9.19096 14.4 9 14.4C8.80904 14.4 8.62591 14.3241 8.49088 14.1891C8.35586 14.0541 8.28 13.871 8.28 13.68V9.72H4.32C4.12904 9.72 3.94591 9.64414 3.81088 9.50912C3.67586 9.37409 3.6 9.19096 3.6 9C3.6 8.80904 3.67586 8.62591 3.81088 8.49088C3.94591 8.35586 4.12904 8.28 4.32 8.28H8.28V4.32C8.28 4.12904 8.35586 3.94591 8.49088 3.81088C8.62591 3.67586 8.80904 3.6 9 3.6C9.19096 3.6 9.37409 3.67586 9.50912 3.81088C9.64414 3.94591 9.72 4.12904 9.72 4.32V8.28H13.68C13.871 8.28 14.0541 8.35586 14.1891 8.49088C14.3241 8.62591 14.4 8.80904 14.4 9C14.4 9.19096 14.3241 9.37409 14.1891 9.50912C14.0541 9.64414 13.871 9.72 13.68 9.72Z"
+                            fill="#FF7878"
+                          />
+                        </svg>
+                        </button></>)
+                      }
+                     
+                    </div>
+                  );
+                })}</>
+    
+                  )}
+                
                 
                 </div>
                 

@@ -3,11 +3,7 @@ import "../styles/Login.css"
 import Hand from "../assets/Hand.png"
 import { NavLink, Routes, Route } from "react-router-dom";
 import { AuthContext } from "./ActiveUser"
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL : 'http://localhost:8000'
-});
+import axios from '../axios';
 
 
 export const Login = () =>{
@@ -54,8 +50,9 @@ export const Login = () =>{
   };
 
   const login = async () => {
+    console.log(process.env.REACT_APP_API)
     if (admin === true){
-      let res = await api.post('/admin/login', {password:passw,email:email})
+      let res = await axios.post(`/admin/login`, {password:passw,email:email})
     .then((res) =>{
       setActiveId(email);
         setLink("/dashboard")
@@ -68,7 +65,7 @@ export const Login = () =>{
     })
     }
     else{
-      let res = await api.post('/coach/login', {password:passw,email:email})
+      let res = await axios.post('/coach/login', {password:passw,email:email})
     .then((res) =>{
       setActiveId(email);
         setLink("/dashboard")

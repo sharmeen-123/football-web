@@ -3,12 +3,7 @@ import Header from "../Components/Header";
 import "../styles/font.css"
 import "../styles/font.css"
 import SidebarCreatePlayer from "../Components/sideBarCreatePlayer";
-import axios from "axios";
-
-const api = axios.create({
-  baseURL : 'http://localhost:8000/player'
-});
-
+import axios from '../axios';
 
 export default function AddItems() {
 
@@ -78,7 +73,7 @@ export default function AddItems() {
     console.log(date);
   };
   const createPlayer = async () => {
-    let res = await api.post('/addplayer', {email:email, dateOfBirth:DateOfBirth, position:position, fatherEmail:fatherEmail,
+    let res = await axios.post('player/addplayer', {email:email, dateOfBirth:DateOfBirth, position:position, fatherEmail:fatherEmail,
                                               image:url, name:name, dateJoined:date, phone: phone, isPlayer: isPlayer})
     .then (
       setError(false)

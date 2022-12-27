@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import img1 from "../assets/a.png"
 import img2 from "../assets/b.png"
 import "../styles/font.css";
-import axios from "axios";
+import axios from '../axios';
 export default function MoreProfiles() {
   const [player, setPlayers] = useState(false)
 
@@ -12,13 +12,9 @@ export default function MoreProfiles() {
     
   },[])
 
-  const api = axios.create({
-    baseURL : 'http://localhost:8000'
-  });
-
   // getting players from database
   const allPlayers = async () => {
-    let res = await api.get('/player/getplayers')
+    let res = await axios.get('/player/getplayers')
     .then((res) => {
       if (res.data.data !== res.data.data.Prototype){
         setPlayers(res.data.data);

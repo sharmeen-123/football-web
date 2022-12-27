@@ -3,12 +3,9 @@ import "../styles/Login.css"
 import Hand from "../assets/Hand.png"
 import { NavLink } from "react-router-dom";
 import { AuthContext } from "./ActiveUser";
-import axios from "axios";
+import axios from '../axios';
 import GoogleLogin from "react-google-login";
 
-const api = axios.create({
-    baseURL : 'http://localhost:8000'
-});
 
 export default function SignUp() {
     
@@ -55,7 +52,7 @@ export default function SignUp() {
   };
   const createAdmin = async () => {
     if (admin === true){
-        let res = await api.post('/admin/register', {password:pass, name:name, email:email, phone:phone, isAdmin:isAdmin})
+        let res = await axios.post('/admin/register', {password:pass, name:name, email:email, phone:phone, isAdmin:isAdmin})
     .then((response) =>{
         setLink("/")
     }
@@ -66,7 +63,7 @@ export default function SignUp() {
     })
     }
     else{
-        let res = await api.post('/coach/register', {password:pass, name:name, email:email, phone:phone, iscoach:isAdmin})
+        let res = await axios.post('/coach/register', {password:pass, name:name, email:email, phone:phone, iscoach:isAdmin})
     .then((response) =>{
         setLink("/")
     }

@@ -3,7 +3,7 @@ import Header from "../Components/Header";
 import "../styles/font.css"
 import pfp from "../assets/pfp.png";
 import { NavLink } from "react-router-dom";
-import axios from "axios";
+import axios from '../axios';
 
 
 
@@ -16,10 +16,6 @@ export default function UserArea() {
   const [searchPlayer, setSearchPlayer] = useState(false);
   const [search, setSearch] = useState(false);
   const [staticdataCopy, setStaticDataCopy] = useState(false);
-
-  const api = axios.create({
-    baseURL : 'http://localhost:8000/player'
-  });
    // seting value
   const handleSearchChange = (event) => {
     // 👇 Get input value from "event"
@@ -36,7 +32,7 @@ export default function UserArea() {
   // getting players from database
   const data = async () => {
     console.log("in data")
-    let res = await api.get('/getplayers')
+    let res = await axios.get('player/getplayers')
     .then((res) => {
       if (res.data.data !== res.data.data.Prototype){
         setStaticData(res.data.data);

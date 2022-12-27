@@ -1,7 +1,6 @@
 import React from "react";
-import pfp from "../assets/pfp.png";
 import "../styles/font.css"
-export default function ChatParentalProfile() {
+export default function ChatParentalProfile(props) {
   return (
     <>
       <div className=" font-lexend ml-6  mt-8">
@@ -11,13 +10,16 @@ export default function ChatParentalProfile() {
         <div class="w-full min-w-sm bg-transparent mt-8   ">
           <div class="flex justify-center px-4 pt-4">
             <div class="flex flex-col items-center pb-10">
-              <img
+              {props.img.toString() !== "false"?(<>
+                <img
                 class="mb-3 w-20 h-20 rounded-full shadow-lg"
-                src={pfp}
+                src={props.img}
                 alt="Bonnie image"
               />
-              <h5 class="mb-1 text-lg font-lexend font-normal text-white ">Augustus</h5>
-              <span class="text-sm font-lexend font-normal text-[#7e7e7e]">Augustus@gmail.com</span>
+              </>):(<div class="mb-3 w-20 h-20 rounded-full shadow-lg bg-white"></div>)}
+              
+              <h5 class="mb-1 text-lg font-lexend font-normal text-white ">{props.RecieverName}</h5>
+              <span class="text-sm font-lexend font-normal text-[#7e7e7e]">{props.to}</span>
               <a
                 href="/chat"
                 class="inline-flex font-lexend items-center py-2 px-7 mt-5 text-sm font-medium text-white bg-green-500 rounded-[4px] "
@@ -55,7 +57,7 @@ export default function ChatParentalProfile() {
           </div>
         </div>
         <p class="font-normal mt-1 text-sm font-lexend  text-gray-400 ">
-          Huzayfah@gmail.com
+        {props.to}
         </p>
         {/* Phone */}
         <div className="flex pt-5 gap-4 items-center">
@@ -82,7 +84,7 @@ export default function ChatParentalProfile() {
           </div>
         </div>
         <p class="font-normal mt-1 text-sm font-lexend  text-gray-400 my-2">
-          +944223435543
+          {props.phone}
         </p>
         {/* Position */}
         <div className="flex mt-5 pt-5 gap-4 items-center">
@@ -107,38 +109,9 @@ export default function ChatParentalProfile() {
           </div>
         </div>
         <p class="font-normal mt-1 text-sm font-lexend text-gray-400 my-2">
-          Goalkeeper
+          {props.position}
         </p>
-        {/* Gender */}
-        <div className="flex mt-5 gap-4 pt-5 items-center">
-          <svg
-            width="14"
-            height="19"
-            viewBox="0 0 14 19"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M7.00028 9.32868C9.57632 9.32868 11.6646 7.24039 11.6646 4.66434C11.6646 2.0883 9.57632 0 7.00028 0C4.42423 0 2.33594 2.0883 2.33594 4.66434C2.33594 7.24039 4.42423 9.32868 7.00028 9.32868Z"
-              fill="#1DB954"
-            />
-            <path d="M14 15.1562V18.6335H0V15.1562" fill="#1DB954" />
-            <path
-              d="M14 15.7089V13.1552C14 11.6813 12.6986 10.4941 11.0824 10.4941H2.91756C1.30137 10.4941 0 11.6813 0 13.1552V15.7089"
-              fill="#1DB954"
-            />
-          </svg>
-
-          <div>
-            {" "}
-            <h4 class="self-center text-base font-normal font-lexend  whitespace-nowrap text-white  ">
-              Gender
-            </h4>
-          </div>
-        </div>
-        <p class="font-normal mt-1  text-sm font-lexend  text-gray-400 ">
-          Male
-        </p>
+        
       </div>
     </>
   );

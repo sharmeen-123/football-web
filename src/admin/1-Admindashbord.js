@@ -7,11 +7,8 @@ import pfp from "../assets/pfp.png";
 import "../styles/Dashboard.css"
 import "../styles/background.css"
 import { NavLink } from "react-router-dom";
-import axios from 'axios';
+import axios from '../axios';
 
-const api = axios.create({
-  baseURL : 'http://localhost:8000/event'
-});
 
 export default function Dashboard() {
   const [openAddsubcatmodal, setopenAddsubcatmodal] = useState(false);
@@ -51,7 +48,7 @@ export default function Dashboard() {
 
   const data = async () => {
     console.log("in data")
-    let res = await api.get('/getEvent')
+    let res = await axios.get('event/getEvent')
     .then((res) => {
       if (res.data.data !== res.data.data.Prototype){
         SetAllGetEvents(res.data.data);
@@ -70,7 +67,7 @@ export default function Dashboard() {
 
 
   const eventsceduling = async () => {
-    let res = await api.post('/setevent', {day:day,month:month,year:yearr, event:sceduleEvent, title:title})
+    let res = await axios.post('event/setevent', {day:day,month:month,year:yearr, event:sceduleEvent, title:title})
     .then((res) => {
       setevent(false)
       setschedule(false)

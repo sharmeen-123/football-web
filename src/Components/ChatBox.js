@@ -1,34 +1,52 @@
-import React from "react";
-import pfp from "../assets/pfp.png";
+import React, {useState, useEffect, useContext} from "react";
 import LeftSideChat from "./LeftSideChat";
 import RightSideChat from "./RightSideChat";
 import "../styles/font.css"
 import '../styles/scrollbar.css'
-export default function ChatBox() {
+import { AuthContext } from "../admin/ActiveUser"
+export default function ChatBox(props) {
+  const [date, setDate] = useState(false);
+
+  // getting messages from database
+  const AllMessages = async () => {
+    console.log(props.chat)
+  }
+
+  useEffect (()=>{
+    AllMessages();
+  },[])
+  //AllMessages();
+
   return (
     <>
       <div className="font-lexend">
         <div className="w-full my-6 ">
           {/* Profile OF the User */}
           <div className="flex items-center gap-2 pb-5 px-5 ml-4 border-b border-grey-500">
-            <img
+            {props.img.toString() !== "false"?(<>
+              <img
               class=" w-16 h-16 rounded-full "
-              src={pfp}
+              src={props.img}
               alt="Bonnie image"
             />
+            </>):(<><div className="w-16 h-16 rounded-full bg-white"></div></>)}
+            
             <div>
               <div className="flex items-center gap-4">
                 <h5 class="text-3xl font-lexend font-medium tracking-tight text-white">
-                  Dale
+                  {props.RecieverName}
                 </h5>
 
-                <div class="inline-flex font-dm items-center py-1 px-5  text-xs font-medium text-white bg-green-500 rounded-md ">
-                  Player
+                {props.status?(<>
+                  <div class="inline-flex font-dm items-center py-1 px-5  text-xs font-medium text-white bg-green-500 rounded-md ">
+                  {props.status}
                 </div>
+                </>):(<></>)}
+                
               </div>
 
               <p class="font-normal font-lexend text-base   text-[#777777]">
-                Dale@gmail.com
+                {props.to}
               </p>
             </div>
             <div className="ml-auto">
@@ -49,26 +67,109 @@ export default function ChatBox() {
 
           {/* Chat Of The  */}
           <div className=" lg:h-[450px] 2xl:h-[700px] overflow-y-scroll scrollbar">
-            <div class="flex items-center py-4 mx-10">
-              <div class="flex-grow h-px bg-gray-400"></div>
+            {props.chat?(<>
+              {props.chat.map((val, ind) => {
+                return(
+                  <div>
+                    {/* {date === false}(<>
+                      <DateFunction date={val.date.slice(0,10)} setDate={setDate}/>
+                    </>):(<>
+                    {val.date.slice(0,10).toString() !== date.toString()}(<>
+                      <DateFunction date={val.date.slice(0,10)} setDate={setDate}/>
+                    </>):(<></>)
+                    </>) */}
+          
+          
+          
+                  
+                    {/* {date !== val.date.slice(0,10)?(<>
+                       <div class="flex items-center py-4 mx-10">
+                    <div class="flex-grow h-px bg-gray-400"></div>
+                    
+                    
+                    <span class="flex-shrink text-base font-dm text-[#ffffff] px-4  font-normal">
+                     {date}
+                     <DateFunction setDate={setDate} newDate={date} date={val.date} setShowDate={setShowDate}/>
+                  
+                    </span>
 
-              <span class="flex-shrink text-base font-dm text-[#ffffff] px-4  font-normal">
-                Today
-              </span>
+                    <div class="flex-grow h-px bg-gray-400"></div>
+                  </div>
+   
+                    </>):(<>
+                      <DateFunction newDate={date} setDate={setDate} date={val.date} setShowDate={setShowDate}/>
+                  
+                    </>)} */}
+                    {/* {date?(<>
+                      <div class="flex items-center py-4 mx-10">
+                    <div class="flex-grow h-px bg-gray-400"></div>
+                    
+                    
+                    <span class="flex-shrink text-base font-dm text-[#ffffff] px-4  font-normal">
+                      Today
+                    </span>
 
-              <div class="flex-grow h-px bg-gray-400"></div>
-            </div>
+                    <div class="flex-grow h-px bg-gray-400"></div>
+                  </div>
+                  </>):(<></>)} */}
 
-            <div>
-              <LeftSideChat />
-            </div>
-            <div className="mt-5">
-              <RightSideChat />
-            </div>
+
+                
+                  
+                    {val.myself === true?(<>
+                      <div className="mt-5"> 
+                      
+                      <LeftSideChat message={val.message} date={val.date} image={val.pic} name={props.SenderName} pic={props.SenderImg}/>
+                    </div>
+                      
+                    </>):(<>
+                      <div>
+                      <RightSideChat message={val.message} image={val.pic} date={val.date} name={props.RecieverName} pic={props.img}/>
+                      </div>
+                      
+                    </>)}
+                  
+                
+                </div>
+                )
+              })}
+                  </>):(<>
+                    
+                  </>)}
+           
+            
 
           </div>
         </div>
       </div>
     </>
   );
+}  
+export function DateFunction(props){
+  useEffect (()=>{
+    setvalue();
+    
+  },[])
+  const setvalue = () => {
+    props.setDate(props.date)
+    console.log("in date")
+    // if(date !== props.date.substring(0,10)){
+    //   setDate(props.date.substring(0,10))
+    //   console.log(date)
+    // }
+    // if(props.datewDate === false){
+    //   props.setDate(currentDate)
+    //   console.log(currentDate, props.date)
+    // }
+    // else if(currentDate.toString() !== props.date.toString()){
+    //   props.setDate(currentDate)
+    //   console.log(currentDate, props.date)
+    // }
+  }
+  
+  return(<>
+  <div className="text-white">{props.date}</div>
+  </>)
 }
+
+

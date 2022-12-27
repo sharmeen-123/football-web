@@ -3,7 +3,7 @@ import pfp from "../assets/pfp.png";
 import "../styles/font.css";
 import { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../admin/ActiveUser";
-import axios from "axios";
+import axios from '../axios';
 
 export default function UploadPostOntimeline(props) {
   const hiddenFileInputphoto = React.useRef(null);
@@ -25,13 +25,6 @@ export default function UploadPostOntimeline(props) {
     hour: "2-digit",
     minute: "2-digit",
   })
-  const api = axios.create({
-    baseURL : 'http://localhost:8000'
-  });
-  
-   
-  
-
   const handleClickphoto = (event) => {
     hiddenFileInputphoto.current.click();
   };
@@ -135,7 +128,7 @@ export default function UploadPostOntimeline(props) {
   // sending post
   const sendPost = async (post) => {
     if (props.newsfeed){
-      let res = await api.post('/newsfeed/posts', {post : post})
+      let res = await axios.post('/newsfeed/posts', {post : post})
     .then (
       console.log("post send")
     )
@@ -144,7 +137,7 @@ export default function UploadPostOntimeline(props) {
     })
     }
     else{
-      let res = await api.put('/groups/UploadPost/'+group, {post : post})
+      let res = await axios.put('/groups/UploadPost/'+group, {post : post})
     .then (
       
       console.log("post send")

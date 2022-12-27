@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import ItemsRightSidebar from "./ItemsRightSideBar";
 import Header from "../../Components/Header";
 import "../../styles/font.css"
-import axios from "axios";
+import axios from '../../axios';
 
 
 export default function AddItems() {
@@ -15,10 +15,6 @@ export default function AddItems() {
   const [status, setStatus] = useState(false);
   let isitem = false;
   const hiddenFileInput = React.useRef(null);
-
-  const api = axios.create({
-    baseURL : 'http://localhost:8000/shop'
-  });
 
   const handleClick = (event) => {
     hiddenFileInput.current.click();
@@ -64,7 +60,7 @@ export default function AddItems() {
 
   // sending request
   const addItem = async () => {
-    let res = await api.post('/additem', {name : name, price : price, quantity : quantity, image : url, isitem:isitem})
+    let res = await axios.post('/shop/additem', {name : name, price : price, quantity : quantity, image : url, isitem:isitem})
     .then (
       setError(false)
     )

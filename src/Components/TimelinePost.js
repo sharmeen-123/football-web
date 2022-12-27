@@ -4,7 +4,7 @@ import pic3 from "../assets/pic3.png";
 import "../styles/font.css";
 import { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../admin/ActiveUser";
-import axios from "axios";
+import axios from '../axios';
 
 
 export default function TimelinePost(props) {
@@ -18,17 +18,13 @@ export default function TimelinePost(props) {
     minute: "2-digit",
   })
 
-  const api = axios.create({
-    baseURL : 'http://localhost:8000'
-  });
-
 
 
 
    // getting all posts
    const memberName = async () => {
     if (props.newsfeed){
-      let res = await api.get('/newsfeed/getnewsfeed')
+      let res = await axios.get('/newsfeed/getnewsfeed')
       .then ( (res) => {
         
         if (res.data.data !== res.data.data.Prototype){
@@ -43,7 +39,7 @@ export default function TimelinePost(props) {
       })
     }
     else {
-      let res = await api.get('/groups/getgroupbyId/'+group)
+      let res = await axios.get('/groups/getgroupbyId/'+group)
     .then ( (res) => {
       
       if (res.data.data !== res.data.data.Prototype){
