@@ -71,14 +71,23 @@ export default function ChatBox(props) {
               {props.chat.map((val, ind) => {
                 return(
                   <div>
-                    {/* {date === false}(<>
+                    {date.toString() !== val.date.slice(0,10).toString() ? (<>
                       <DateFunction date={val.date.slice(0,10)} setDate={setDate}/>
-                    </>):(<>
+                      
+                      
+                    </>):(<></>)}
+
+                    {/* {date === false}(<>
+
+                      <DateFunction date={val.date.slice(0,10)} setDate={setDate}/>
+                      <div className="text-white">{date}</div>
+                    </>):(
                     {val.date.slice(0,10).toString() !== date.toString()}(<>
                       <DateFunction date={val.date.slice(0,10)} setDate={setDate}/>
+                      <div className="text-white">{date}</div>
                     </>):(<></>)
-                    </>) */}
-          
+                    )
+           */}
           
           
                   
@@ -145,30 +154,16 @@ export default function ChatBox(props) {
     </>
   );
 }  
-export function DateFunction(props){
+function DateFunction(props){
   useEffect (()=>{
     setvalue();
     
   },[])
   const setvalue = () => {
     props.setDate(props.date)
-    console.log("in date")
-    // if(date !== props.date.substring(0,10)){
-    //   setDate(props.date.substring(0,10))
-    //   console.log(date)
-    // }
-    // if(props.datewDate === false){
-    //   props.setDate(currentDate)
-    //   console.log(currentDate, props.date)
-    // }
-    // else if(currentDate.toString() !== props.date.toString()){
-    //   props.setDate(currentDate)
-    //   console.log(currentDate, props.date)
-    // }
-  }
-  
+    console.log("in date")}
   return(<>
-  <div className="text-white">{props.date}</div>
+      <div className="text-white">{props.date}</div>
   </>)
 }
 
