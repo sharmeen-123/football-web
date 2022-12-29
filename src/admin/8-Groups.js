@@ -13,11 +13,6 @@ export default function Groups() {
   const {id, setActiveId } = useContext(AuthContext);
   const {group, setActiveGroup } = useContext(AuthContext);
 
-
-  useEffect (()=>{
-    data();
-  },[])
-
   const handleGroupChange = (event) => {
     search = event.target.value;
     console.log(search);
@@ -26,24 +21,24 @@ export default function Groups() {
 
   const checkNames = (val) => {
     console.log(staticdataCopy);
-      if (val.name.includes(search)){
+      if (val.name.toUpperCase().includes(search.toUpperCase())){
         return val.name;
       }
   }
 
   const data = async() => {
-    let email = id;
-    let res = await axios.get("/groups/getgroup/"+ email)
+    let res = await axios.get("/groups/getgroup/"+id)
     .then((res) => {
-      if (res.data.data !== res.data.data.Prototype){
-        setStaticData(res.data.data);
-
-      }})
+      setStaticData(res.data.data);
+      })
     .catch((error) => {
         console.log(error.response.data);
         
     })
   }
+  useEffect (()=>{
+    data();
+  },[])
 
   return (
     <>

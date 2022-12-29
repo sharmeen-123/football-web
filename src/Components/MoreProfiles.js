@@ -1,9 +1,8 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import img1 from "../assets/a.png"
-import img2 from "../assets/b.png"
 import "../styles/font.css";
 import axios from '../axios';
+import { NavLink } from "react-router-dom";
 export default function MoreProfiles() {
   const [player, setPlayers] = useState(false)
 
@@ -41,18 +40,29 @@ export default function MoreProfiles() {
                   
                   
                   return (<>
+                  
                   {val.image? (<>
+                  <NavLink to={"/userarea/playerprofile/profile"}>
                     <img
                   class="mb-3 w-10 h-10 rounded-full shadow-lg"
                   src={val.image}
                   alt="Bonnie image"
-          /></>): (<>
-          <div class="mb-3 w-10 h-10 rounded-full shadow-lg bg-white" ></div></>)}
-                  </>)})}
-        </>): (<>
+                  
+          />
+          </NavLink></>): (<>
+            <NavLink to={"/userarea/playerprofile/profile"}>
+                   
+          <div class="mb-3 w-10 h-10 rounded-full shadow-lg bg-white" ></div>
+          </NavLink>
           </>)}
+          
+              </>)})}
+        </>): (<>
+          </>)
+          }
         
       </div>
     </>
+    
   );
 }

@@ -1,30 +1,23 @@
 import React from "react";
-import pfp from "../assets/pfp.png";
 import "../styles/font.css";
 import { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../admin/ActiveUser";
 import axios from '../axios';
 
 export default function UploadPostOntimeline(props) {
+  
   const hiddenFileInputphoto = React.useRef(null);
   const hiddenFileInputvideo = React.useRef(null);
+  const [postt, setpostt] = useState(false)
+  const [img, setimg] = useState(false)
+  const[vid, setvid] = useState(false)
   const [post, setPost] =  useState(false);
   const {group, setActiveGroup } = useContext(AuthContext);
-  const [url, setUrl] = useState(false);
-  const [video_url, setVideoUrl] = useState(false);
-  const [image, setImage] = useState(false);
-  const [Video, setVideo] = useState(false);
-  const [newsfeed, setNewsfeed] = useState(false);
-  const [name, setName] = useState(false)
   const {id, setActiveId } = useContext(AuthContext);
-  const [Group, SetGroup] = useState(false);
   const [Activemage, setActiveImage] = useState(false);
-  const today = new Date();
-  const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-  const time = today.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })
+  const [selected, setSelected] = useState(false);
+  const [name, setName] = useState(false)
+  const date = new Date();
   const handleClickphoto = (event) => {
     hiddenFileInputphoto.current.click();
   };
@@ -32,105 +25,83 @@ export default function UploadPostOntimeline(props) {
     hiddenFileInputvideo.current.click();
   };
   const handleChangephoto = (event) => {
-    setImage(event.target.files[0]);
-    img();
-  };
-  const handleChangevideo = (event) => {
-    setVideo(event.target.files[0]);
-    console.log(Video)
-    uploading_video();
-  };
-  const handlePostChange = (event) => {
-    // 👇 Get input value from "event"
-    setPost(event.target.value);
-  };
-
-  const img = () => {
+    setName(event.target.files[0].name)
     const data = new FormData();
-    data.append("file", image);
+    data.append("file", event.target.files[0]);
     data.append("upload_preset","player_image");
     //data.append("cloud_name","dyapmvalo");
     axios.post("https://api.cloudinary.com/v1_1/dyapmvalo/image/upload", data)
     .then((res) => {
-      setUrl(res.data.url)
+        setimg(res.data.url)
+        setvid(false)
+        setSelected(true)
+        console.log(res.data.url)
     })
     .catch((err) => {
-      console.log(err)
+     console.log("Image not Selected")
     });
-  }
-
-  const uploading_video = () => {
+  };
+  const handleChangevideo = (event) => {
+    
+    setName(event.target.files[0].name)
     const data = new FormData();
-    data.append("file", Video);
+    data.append("file", event.target.files[0]);
     data.append("upload_preset","player_image");
     //data.append("cloud_name","dyapmvalo");
     axios.post("https://api.cloudinary.com/v1_1/dyapmvalo/video/upload", data)
     .then((res) => {
-      setVideo(res.data.url)
-      console.log(video_url)
+      setvid(res.data.url)
+      setimg(false)
+      setSelected(true)
+      console.log(vid)
     })
     .catch((err) => {
       console.log(err)
     });
-  }
+  };
+  
+  const handlePostChange = (event) => {
+    setpostt(event.target.value)
+  };
 
   const fillingarray = () => {
-    let posts = null;
-    if (post){
-      posts = {newpost : post,
-                    video_url : null,
+    let  posts = {newpost : postt,
+                    video_url : vid,
                     image_active : props.image,
-                    image : null,
+                    image : img,
                     date : date,
-                  time : time,
                 name: props.name,
               email : id};
-    if (!newsfeed){
-      sendPost(posts);
-      post = null;
-   }
-    }
-    if (video_url){
-      posts = {newpost : null,
-          video_url : video_url,
-          image : null,
-          image_active : props.image,
-          date : date,
-        time : time,
-        name: props.name,
-        email : id};
-        if (!newsfeed){
-          sendPost(posts);
-          post = null;
-       }
-       
-    }
-    if (url){
-      posts = {
-        newpost : null,
-        video_url : null,
-        image_active : props.image,
-        image :url,
-        date : date,
-      time : time,
-      name: props.name,
-      email : id};
-    }
-    if (!newsfeed){
-      sendPost(posts);
-      post = null;
-   }
-   setUrl(false);
-   setPost(false);
-   setVideoUrl(false);
+              setPost(posts)
+    if (post.newpost || post.video_url || post.image ){
+     
+      
+      console.log("in condition",post)
+      sendPost()
+      console.log(post)
+      setpostt(false)
+      setimg(false)
+      setvid(false)
+      setSelected(false)
+          }
+    
+    
+    
+    
+    
   }
 
   // sending post
-  const sendPost = async (post) => {
+  const sendPost = async () => {
     if (props.newsfeed){
       let res = await axios.post('/newsfeed/posts', {post : post})
-    .then (
+    .then ((res) => {
       console.log("post send")
+      setpostt(false)
+      setimg(false)
+      setvid(false)
+      setPost(false)}
+      
     )
     .catch((error) => {
         console.log(error);
@@ -138,18 +109,18 @@ export default function UploadPostOntimeline(props) {
     }
     else{
       let res = await axios.put('/groups/UploadPost/'+group, {post : post})
-    .then (
-      
-      console.log("post send")
-      
-    )
+      .then ((res) => {
+        console.log("post send")
+        setpostt(false)
+        setimg(false)
+        setvid(false)
+        setPost(false)}
+      )
     .catch((error) => {
         console.log(error);
     })
     }
-    setPost(false);
-    setVideoUrl(false);
-    setUrl(false)
+    
     
   }
 
@@ -175,6 +146,14 @@ export default function UploadPostOntimeline(props) {
               onChange={handlePostChange}
             />
           </div>
+          {selected?(
+                <div>
+                <p className="text-white text-sm text-left ml-10 pl-5 pt-2">{name}</p>
+                </div> 
+              ):(
+                <>
+                 </>
+              )}
           <div className="mt-5">
             <div className="flex ml-14 ">
               <button

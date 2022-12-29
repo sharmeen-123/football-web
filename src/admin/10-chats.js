@@ -5,7 +5,8 @@ import "../styles/font.css"
 import ChatBox from "../Components/ChatBox";
 import ChatParentalProfile from "../Components/ChatParentalProfile";
 import { AuthContext } from "../admin/ActiveUser"
-import axios from '../axios';
+import axios from 'axios';
+import apiCall from '../axios';
 export default function Chat() {
   const hiddenFileInput = React.useRef(null);
   const [img, setImg] = useState(false);
@@ -13,8 +14,6 @@ export default function Chat() {
   const [to, setTo] = useState(false);
   const [status, setStatus] = useState(false);
   const [sendChat, setSendChat] = useState(false);
-  const [url, setUrl] = useState("no image");
-  const [image, setImage] = useState("");
   const [phone, setPhone] = useState(false);
   const [position, setPosition] = useState(false);
   const [Senderphone, setSenderPhone] = useState(false);
@@ -22,28 +21,38 @@ export default function Chat() {
   const [Sendername, setSenderName] = useState(false);
   const [SenderImg, setSenderImg] = useState(false);
   const [chat, setChat] = useState();
+  let url = "no image"
   const {id, setActiveId } = useContext(AuthContext);
 
-  const imgUpload = () => {
+  
+  const handleClick = (event) => {
+    hiddenFileInput.current.click();
+  };
+
+  const handleChange = (event) => {
+    console.log(event.target.files[0].name)
     const data = new FormData();
-    data.append("file", image);
+    data.append("file", event.target.files[0]);
     data.append("upload_preset","player_image");
     //data.append("cloud_name","dyapmvalo");
     axios.post("https://api.cloudinary.com/v1_1/dyapmvalo/image/upload", data)
     .then((res) => {
-      setUrl(res.data.url)
+      console.log(res.data.url)
+      url = res.data.url
+      sendMsg();
     })
     .catch((err) => {
       console.log(err)
     });
-  }
+    
+   
+  };
 
   const AllMessages = async () => {
     console.log("in messages")
-    let res = await axios.get('/chat/getmessage/'+id+"/"+to)
+    let res = await apiCall.get('/chat/getmessage/'+id+"/"+to)
     .then((res) => {
       setChat(res.data);
-      console.log(chat)
       })
     .catch((error) => {
         console.log(error.response.data);
@@ -52,17 +61,16 @@ export default function Chat() {
   
 
   const sendMsg = async () => {
-    let res = await axios.post('/chat/sendmessage', {to:to, reciever_img:img, reciever_status:status, reciever:Recievername, message:sendChat, from:id, image:url, position:position, phone:phone, Sender:Sendername, Senderphone:Senderphone, Senderposition:Senderposition})
+    let res = await apiCall.post('/chat/sendmessage', {to:to, reciever_img:img, reciever_status:status, reciever:Recievername, message:sendChat, from:id, image:url, position:position, phone:phone, Sender:Sendername, Senderphone:Senderphone, Senderposition:Senderposition})
     .then ((res) => 
-      {setUrl("no image");
-      console.log(id);
-      console.log(to)
-      setSendChat(false)
+      {
       console.log("msg sent")}
     )
     .catch((error) => {
         console.log(error);
     })
+    url = "no image";
+      setSendChat(false)
     AllMessages();
 
 
@@ -71,19 +79,10 @@ export default function Chat() {
     setSendChat(event.target.value);
     console.log(sendChat)
   }
-
-  const handleClick = (event) => {
-    hiddenFileInput.current.click();
-  };
-  const handleChange = (event) => {
-    setImage(event.target.files[0]);
-    imgUpload();
-    sendMsg();
-    
-   
-  };
+  
   return (
     <>
+    
       <div className="flex-col w-full font-lexend">
         {/* Page Header */}
         <Header title={"Chats"} />
@@ -94,10 +93,14 @@ export default function Chat() {
           </div>
 
           {/* center Post */}
+          
           <div className=" w-full mb-5">
             <ChatBox SenderImg={SenderImg} SenderName = {Sendername} RecieverName = {Recievername} status={status} to = {to} img={img} chat={chat}/>
-            <div className="my-[20px] mx-10 mb-10">
+            
+            {to?(<>
+              <div className="my-[20px] mx-10 mb-10">
               <div className="relative">
+              
                 <div className="cursor-pointer absolute top-3.5 right-2"
                 onClick={sendMsg}>
                   <svg
@@ -142,6 +145,8 @@ export default function Chat() {
                 />
               </div>
             </div>
+            </>):(<></>)}
+            
           </div>
 
           {/* right side-bar parent profile */}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import Header from "../Components/Header";
 import "../styles/font.css"
@@ -15,26 +15,61 @@ export default function Dashboard() {
   const [opendeletemodal, setopendeletemodal] = useState(false);
   const [addschedule, setschedule] = useState(false);
   const [event, setevent] = useState(false);
-  const [day, setDay] = useState(false);
+  const [day, setDay, DayRef] = useState(false);
   const [month, setMonth] = useState(false);
-  const [yearr, setyear] = useState(false);
+  const [yearr, setyear] = useState(0);
   const [sceduleEvent, setSceduleEvent] = useState(false);
   const [title, setTitle] = useState(false);
   const [date, setDate] = useState(new Date());
   const [getEvents, SetAllGetEvents] = useState(false);
-  var year = new Date().getFullYear();
+  const [error, setError] = useState(false);
+  var currentyear = new Date().getFullYear();
+  var year = currentyear + 7
 
   const handleDayChange = (event) => {
     // 👇 Get input value from "event"
     setDay(event.target.value);
+    if ((event.target.value > 31 || event.target.value < 1)){
+      if(!event.target.value){
+        setError("Please fill date field")
+      }else{
+        setError("Wrong Date")
+      }
+    }
+    else{
+      setError(false)
+    }
+
   };
   const handleMonthChange = (event) => {
     // 👇 Get input value from "event"
     setMonth(event.target.value);
+    if ((event.target.value > 12 || event.target.value < 1)){
+      if(!event.target.value){
+        setError("Please fill month field")
+      }else{
+        setError("Wrong Month")
+      }
+    }
+    else{
+      setError(false)
+    }
+    //errorHandling()
   };
   const handleYearChange = (event) => {
     // 👇 Get input value from "event"
     setyear(event.target.value);
+    if ((event.target.value < 1970 || event.target.value > year)){
+      if(!event.target.value){
+        setError("Please fill year field")
+      }else{
+        setError("Wrong Year")
+      }
+    }
+    else{
+      setError(false)
+    }
+    //errorHandling()
   };
   const handleSceduleEventChange = (event) => {
     // 👇 Get input value from "event"
@@ -47,12 +82,10 @@ export default function Dashboard() {
 
 
   const data = async () => {
-    console.log("in data")
     let res = await axios.get('event/getEvent')
     .then((res) => {
       if (res.data.data !== res.data.data.Prototype){
         SetAllGetEvents(res.data.data);
-        console.log(getEvents);
         
         
 
@@ -62,20 +95,33 @@ export default function Dashboard() {
         
     })
   };
-  data();
-
-
 
   const eventsceduling = async () => {
-    let res = await axios.post('event/setevent', {day:day,month:month,year:yearr, event:sceduleEvent, title:title})
+    let res = await axios.post('/event/setevent', {day:day,month:month,year:yearr, event:sceduleEvent, title:title})
     .then((res) => {
       setevent(false)
       setschedule(false)
+      setError(false)
     })
     .catch((error) => {
+        setError(error.response.data)
         console.log(error.response.data);
         
     })
+  }
+  const handlingevent = () => {
+    if (error){
+      console.log("error true",error)
+      console.log("event false",event)
+      setevent(false)
+      console.log("event false",event)
+    }
+    else if (!error){
+      console.log("error false",error)
+      console.log("event false",event)
+      setevent(true)
+      console.log("event true",event)
+    }
   }
 
 
@@ -98,6 +144,11 @@ export default function Dashboard() {
     setDate(date);
     
   }
+
+  // useEffect (()=>{
+  //   data();
+  // },[])
+  data();
   return (
     <>
     
@@ -113,7 +164,6 @@ export default function Dashboard() {
           </h4>
           <div className="">
             <Calendar className="bg-gray-400 text-blue" calendarType="Arabic" onChange={onChange} value={date} />
-            {console.log(date, addschedule)}
           </div>
           {/* Cards Upcoming schedule */}
           <h4 class="self-center lexend text-white text-xl font-semibold whitespace-nowrap mt-10 mb-9 ">
@@ -366,8 +416,8 @@ export default function Dashboard() {
                 class="bg-[#808080]  text-white text-sm rounded-lg placeholder-lexend block  pl-10 p-2.5 mb-5 placeholder-white"
                 placeholder="Day"
                 required=""
-                min={1}
-                max = {31}
+                min='1'
+                max = '31'
                 onChange={handleDayChange}
               />
               <input
@@ -375,8 +425,8 @@ export default function Dashboard() {
                 class="bg-[#808080]  text-white text-sm rounded-lg  placeholder-lexend  pl-10 p-2.5 mb-5 ml-3 placeholder-white"
                 placeholder="Month"
                 required=""
-                min={1}
-                max = {12}
+                min='1'
+                max = '12'
                 onChange={handleMonthChange}
               />
               <input
@@ -389,17 +439,26 @@ export default function Dashboard() {
                 onChange={handleYearChange}
               />
             </div>
+            {error?(<>
+            <div className="ml-10 pl-5 text-red-600 text-lg">{error}
+            </div>
+              
+            </>):(<>
+              
+            </>)}
             <div className="flex items-center justify-center my-2">
-              <button 
-              onClick={() => setevent(true)}
+            
+            <button
+              onClick={handlingevent}
               class="inline-flex font-lexend mb-12 items-center py-2.5 px-8  text-sm font-normal text-white bg-green-500 rounded-[4px] m-2">
                 Set of Day
               </button>
               <button 
-              onClick={() => setevent(true)}
+              onClick={handlingevent}
               class="inline-flex font-lexend mb-12 items-center py-2.5 px-8  text-sm font-normal bg-white rounded-[4px] m-2">
                 Set Event
-              </button>
+              </button> 
+              
             </div>
           </div>
         </div>
@@ -458,7 +517,15 @@ export default function Dashboard() {
               </textarea>
               
             </div>
+            {error?(<>
+                <div className="text-red-600 ml-2 text-lg">Event canot be empty!
+                </div>
+              </>):(<>
+              </>)}
+
+
             <div className="flex items-center justify-center my-2">
+              
               <button 
               onClick={eventsceduling}
               class="inline-flex font-lexend mb-12 items-center py-2.5 px-8  text-sm font-normal text-white bg-green-500 rounded-[4px] m-2">

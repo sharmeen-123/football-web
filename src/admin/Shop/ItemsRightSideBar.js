@@ -18,7 +18,8 @@ export default function ItemsRightSidebar(props) {
 
   function editName (event){
     setNewName(event.target.value);
-    data();
+    let namee = event.target.value
+    data(namee);
   }
 
   function checkItem(){
@@ -28,9 +29,9 @@ export default function ItemsRightSidebar(props) {
   }
 
   // getting players from database
-  const data = async () => {
+  const data = async (namee) => {
     console.log("in data")
-    let res = await api.put('updateitem/'+name, {name : newName})
+    let res = await api.put('updateitem/'+name, {name : namee})
     .then(console.log("data updated"))
     .catch((error) => {
         console.log(error.response.data);

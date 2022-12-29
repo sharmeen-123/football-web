@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import ClubhubSidebar from "../Components/clubhub-sidebar";
 import Header from "../Components/Header";
 import "../styles/font.css";
 import axios from '../axios';
+import { AuthContext } from "./ActiveUser"
 export default function Club2() {
 
   // onciick button uppload video
@@ -11,8 +12,10 @@ export default function Club2() {
   const[folderName, setFolderName] = useState(false);
   const[error, setError] = useState(false);
   const [folders, setfolders] = useState(false);
-  const [document, setDocument] = useState("Documents");
+  const [document, setDocument] = useState(false);
   const [fileupload, setfileupload] = useState(false);
+  const {id, setActiveId } = useContext(AuthContext);
+  const [isFolder] = useState(false)
 
   useEffect (()=>{
     console.log("in useeffect")
@@ -23,7 +26,7 @@ export default function Club2() {
   // getting folders from database
   const allFolders = async () => {
     console.log("in all players")
-    let res = await axios.get('/clubhub/getfolder')
+    let res = await axios.get('/clubhub/getfolder/'+id)
     .then((res) => {
       if (res.data.data !== res.data.data.Prototype){
         setfolders(res.data.data);
@@ -39,18 +42,14 @@ export default function Club2() {
   // creating folders
   const Folder = () => {
     createFolder();
-    if (error === false){
-       allFolders();
-        setNewFolder(false);
-        // allFolders();
-    }
 
   }
   const createFolder = async () => {
     
-    let res = await axios.post('/clubhub/createfolder', {name: folderName})
-    .then (
+    let res = await axios.post('/clubhub/createfolder', {name: folderName, email:id, isFolder : isFolder})
+    .then ((res) => {
       setError(false)
+      setNewFolder(false)}
     )
     .catch((error) => {
         setError(error.response.data);
@@ -58,19 +57,16 @@ export default function Club2() {
     })
   }
 
-  const UploadFile = async () => {
+  const SelectedGroup = (name,ind) => {
+    setDocument(name)
+    let arr = [... folders];
+    arr.map((val) => {
+      val.isFolder = false
+    })
+    arr[ind].isFolder = true;
+    setfolders(arr);
     
-    let res = await axios.post('/clubhub/uploadfile/'+document, {file: fileupload})
-    .then (
-      setError(false)
-    )
-    .catch((error) => {
-        setError(error.response.data);
-        console.log(error);
-    })
   }
-
-  
  
 
   const hiddenFileInput = React.useRef(null);
@@ -82,7 +78,6 @@ export default function Club2() {
     console.log("file uploaded")
     console.log(fileupload)
     console.log("file uploaded")
-    UploadFile()
   };
   const handleFileName = (event) => {
     setFolderName(event.target.value);
@@ -123,9 +118,8 @@ export default function Club2() {
                       {folders.map((val, ind) => {
                         return(
                             <>
-                            {val.name === "Documents" ? 
-                            (<div className="rounded-lg bg-[#212121] w-full"
-                            onClick={() => {setDocument(val.name)}}>
+                            {val.isFolder === true ? 
+                            (<div className="rounded-lg bg-[#212121] w-full">
                                 <div className="flex">
                         <div className="flex-1 m-2 p-4">
                         <svg width="40" height="32" viewBox="0 0 40 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -145,7 +139,7 @@ export default function Club2() {
                         </div>
                         
                         <div className="m-4 ">
-                            <h3 className="m-2 text-lg text-white">Documents</h3>
+                            <h3 className="m-2 text-lg text-white">{val.name}</h3>
                             {val.files ? (<>
                               <h5 className="m-2  text-sm text-white">{val.files.length} files</h5></>): 
                               (<>
@@ -155,7 +149,7 @@ export default function Club2() {
 
                                 </div>) : (<>
                                 <div className="rounded-lg bg-[#212121] w-full"
-                                    onClick={() => {setDocument(val.name)}}>
+                                    onClick={() => {SelectedGroup(val.name, ind)}}>
                         <div className="m-2 p-4">
                         <svg width="40"  viewBox="0 0 40 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M16 0H4C1.79 0 0.02 1.79 0.02 4L0 28C0 30.21 1.79 32 4 32H36C38.21 32 40 30.21 40 28V8C40 5.79 38.21 4 36 4H20L16 0Z" fill="#359EFF"/>
@@ -190,8 +184,8 @@ export default function Club2() {
                     </div>
                     <div className="flex place-content-end">
                     <div className="flex-1">
-
-                <form>
+                   
+                <form action="/clubhub/profile" method="post" enctype="multipart/form-data">
                 <div
                 onClick={handleClick}
                 className=" flex-end  font-lexend mb-12 items-center mt-[32px] py-2.5 px-8  text-sm font-normal  bg-green-500 text-white rounded-[4px] m-2"
@@ -204,7 +198,7 @@ export default function Club2() {
                       onChange={handleChange}
                       name = "file" 
                       style={{ display: "none" }}
-                      onClick = {UploadFile}
+                      // onClick = {UploadFile}
                     />
                   </div>
                 </form>
@@ -386,7 +380,7 @@ export default function Club2() {
               </div>
               {error?(
                 <div>
-                <p className="text-white font-lexend text-sm p-3 text-left">{error}</p>
+                <p className="text-red-600 text-lg text-center">{error}!</p>
                 </div> 
               ):(
                 <>

@@ -3,6 +3,7 @@ import "../styles/font.css"
 export default function ChatParentalProfile(props) {
   return (
     <>
+    {props.to?(<>
       <div className=" font-lexend ml-6  mt-8">
         <h4 class="self-center font-lexend text-xl font-medium whitespace-nowrap text-white  ">
           Parent Profile
@@ -113,6 +114,8 @@ export default function ChatParentalProfile(props) {
         </p>
         
       </div>
+    </>):(<></>)}
+      
     </>
   );
 }

@@ -20,7 +20,6 @@ export default function UserArea() {
   const handleSearchChange = (event) => {
     // 👇 Get input value from "event"
     setSearchPlayer(event.target.value);
-    searchInPlayer();
     
   };
 
@@ -32,13 +31,22 @@ export default function UserArea() {
   // getting players from database
   const data = async () => {
     console.log("in data")
-    let res = await axios.get('player/getplayers')
+    let res = await axios.get('/player/getplayers')
     .then((res) => {
       if (res.data.data !== res.data.data.Prototype){
         setStaticData(res.data.data);
-        player();
 
       }})
+    .catch((error) => {
+        console.log(error.response.data);
+        
+    })
+    let response = await axios.get('/player/totalplayers')
+    .then((response) => {
+      setTotalPlayers(response.data.totalPlayer)
+      setPlayersLeft(response.data.playerLeft)
+      setPlayersJoined(response.data.playerPresent)
+      })
     .catch((error) => {
         console.log(error.response.data);
         
@@ -52,38 +60,36 @@ export default function UserArea() {
   
   const checkNames = (val) => {
     console.log(staticdataCopy);
-      if (val.name.includes(searchPlayer)){
+      if (val.name.toUpperCase().includes(searchPlayer.toUpperCase())){
         return val.name;
       }
   }
 
   // profile
    const openProfile = (index) => {
-      let arr = [... staticdata];
+    let arr;
+    if(staticdataCopy){
+      arr = [... staticdataCopy];
+    }else{
+      arr = [... staticdata];
+    }
       arr.map((val,ind) => {
         val.isPlayer = false
       })
       arr[index].isPlayer = true;
       setStaticData(arr); 
+
+
   }
   const closeProfile = (index) => {
-    let arr = [... staticdata];
+    let arr;
+    if(staticdataCopy){
+      arr = [... staticdataCopy];
+    }else{
+      arr = [... staticdata];
+    }
       arr[index].isPlayer = false;
       setStaticData(arr);
-
-  }
-
-  // set upper bar
-  const player = () => {
-    let left = []
-    let present = []
-      setTotalPlayers(staticdata.length)
-      present = staticdata.filter((val) => {return !val.dateLeft});
-      setPlayersJoined(present.length);
-      console.length(playersJoined);
-      left = staticdata.filter((val) => {return val.dateLeft});
-      setPlayersLeft(left.length);
-      console.length(playersLeft);
 
   }
 
@@ -127,11 +133,13 @@ export default function UserArea() {
                 onChange={handleSearchChange}
               />
             </div>
+            
+            <NavLink to={"/userarea"}>
             <button className="inline-flex font-dm font-lexend placeholder-lexend items-center py-4 px-6 ml-4 text-sm font-normal text-white bg-green-500 rounded-[4px] "
             onClick={searchInPlayer}>
               Search
             </button>
-           
+            </NavLink>
 
 
           </form>
@@ -356,7 +364,7 @@ export default function UserArea() {
                     className="py-4 font-medium whitespace-nowrap text-white"
                     onClick={() => closeProfile(index)} 
                   >
-                    {object._id}
+                    #{index + 1}
                   </th>
                   <td className="py-4 ">
                     <div className="flex gap-2 items-center justify-center" onClick={() => closeProfile(index)}>

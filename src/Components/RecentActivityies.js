@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import pfp from "../assets/pfp.png";
 import pic1 from "../assets/pic1.png"
 import "../styles/font.css"
 import axios from '../axios';
-import GroupMembers from "./GroupMembers";
+import Moment from 'react-moment';
 export default function RecentActivityies(props) {
   const [post, SetPost] = useState(false);
   const [recent, setRecent] = useState(false);
   const today = new Date();
+  
   const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
   const time = today.toLocaleTimeString("en-US", {
     hour: "2-digit",
@@ -17,13 +18,13 @@ export default function RecentActivityies(props) {
 
   // getting all posts
   const memberName = async () => {
-      let res = await axios.get('/newsfeed/getnewsfeed')
+      let res = await axios.get('/newsfeed/getrecentposts')
       .then ( (res) => {
         
         if (res.data.data !== res.data.data.Prototype){
           let member = (res.data.data);
           SetPost(member.reverse());
-         
+         console.log(post)
         }
         }
       )
@@ -33,7 +34,9 @@ export default function RecentActivityies(props) {
     
     
   }
+  useEffect (()=>{  
   memberName()
+  },[])
 
   return (
     <>
@@ -51,27 +54,29 @@ export default function RecentActivityies(props) {
         {post === false ? (<></>): (<>
           {post.map((val, ind) => (
           <>
-          {val.post.date === date? (<>
 
-            {Math.floor((val.post.time-time)/(24*3600*1000)) < 60? (<>
-              <p>helloo</p>
-            </>):(<></>)}
+            
             <div className="flex gap-2 mt-5 ">
             <div className="flex items-center">
-              <img
+              {val.post.sender_img?(<>
+                <img
                 class=" w-8 h-8 rounded-full shadow-lg"
-                src={pfp}
+                src={val.post.sender_img}
                 alt="Bonnie image"
               />
+              </>):(<>
+              <div className="w-8 h-8 rounded-full shadow-lg bg-white"></div>
+              </>)}
+              
             </div>
             <div className="ml-1">
               <div className="flex gap-1 items-center">
                 <h6 class=" font-medium whitespace-nowrap text-sm font-lexend text-white  ">
-                  Jhon
+                  {val.post.name}
                 </h6>
-                <p class="text-xs font-lexend text-gray-500 ">Posted a photo</p>
+                <p class="text-xs font-lexend text-gray-500 ">Posted </p>
               </div>
-              <p class="text-xs font-lexend text-gray-500 ">5 mins ago</p>
+              <p class="text-xs font-lexend text-gray-500 "><Moment fromNow>{val.post.date}</Moment></p>
             </div>
             {props.Preview === true ? (
               <div className="flex items-center">
@@ -86,11 +91,6 @@ export default function RecentActivityies(props) {
             )}
            
           </div>
-
-
-
-
-          </>) : (<></>)}
           </>
           
           

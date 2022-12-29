@@ -2,6 +2,7 @@ import React, {useState, useEffect, useContext} from "react";
 import "../styles/font.css"
 import axios from '../axios';
 import { AuthContext } from "../admin/ActiveUser"
+import Moment from 'react-moment';
 export default function RecentChats(props) {
   const [players, setPlayers] = useState(false);
   const [admin, setAdmin] = useState(false);
@@ -23,8 +24,6 @@ export default function RecentChats(props) {
       let res = await axios.get('/chat/getAllChats/'+id)
       .then((res) => {
         setData(res.data);
-        console.log(data)
-        console.log(id)
         })
       .catch((error) => {
           console.log(error.response.data);
@@ -33,7 +32,6 @@ export default function RecentChats(props) {
 
   // getting players from database
   const allPlayers = async () => {
-    console.log("in all players")
     let res = await axios.get('/player/getplayers')
     .then((res) => {
       if (res.data.data !== res.data.data.Prototype){
@@ -106,12 +104,12 @@ export default function RecentChats(props) {
   };
 
   const checkNames = (val) => {
-      if (val.name.includes(search)){
+      if (val.name.toUpperCase().includes(search.toUpperCase())){
         return val.name;
       }
   }
   const checkChats = (val) => {
-    if (val.reciever.includes(search)){
+    if (val.reciever.toUpperCase().includes(search.toUpperCase())){
       return val.reciever;
     }
 }
@@ -124,7 +122,6 @@ const allAdmins = async () => {
       props.setSenderImg(adminn.image)
       props.setSenderPosition("admin");
       props.setSenderPhone(adminn.phone);
-      console.log(adminn.phone)
     }
     
   })
@@ -237,17 +234,10 @@ const selectChat = (val, status) => {
                       
                     </div>
                     <div>
-                      <div className="flex-1 grow-0 ">
-                      {dateToday === val.date.slice(0,10)?(<>
-                        <p class="font-medium ml-[20px] text-xs mt-2 text-[#777777]">
-                          {val.date.slice(11,19)}
+                    <p class="font-medium ml-[20px] text-xs mt-2 text-[#777777]">
+                        <Moment fromNow>{val.date}</Moment>
                       </p>
-                      </>):(<>
-                        <p class="font-medium text-xs mt-2  text-[#777777] ">
-                      {val.date.slice(0,10)}
-                    </p>
-                    </>)}
-                      </div>
+                      
                     </div>
                       </div>
                     </div>
@@ -371,15 +361,12 @@ const selectChat = (val, status) => {
                     </div>
                     <div>
                       <div className="flex-1 grow-0 ">
-                      {dateToday === val.date.slice(0,10)?(<>
+
+                      
                         <p class="font-medium ml-[20px] text-xs mt-2 text-[#777777]">
-                          {val.date.slice(11,19)}
+                        <Moment fromNow>{val.date}</Moment>
                       </p>
-                      </>):(<>
-                        <p class="font-medium text-xs mt-2  text-[#777777] ">
-                      {val.date.slice(0,10)}
-                    </p>
-                    </>)}
+                      
                       </div>
                     </div>
                     

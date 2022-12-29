@@ -1,5 +1,4 @@
 import React from "react";
-import pfp from "../assets/pfp.png";
 import "../styles/font.css"
 export default function LeftSideChat(props) {
   return (

@@ -24,6 +24,7 @@ export default function Selectedgroup(props) {
   useEffect (()=>{
     memberpic();
   },[]) 
+  
    // getting all posts
    const memberpic = async () => {
 
@@ -40,26 +41,11 @@ export default function Selectedgroup(props) {
         console.log(error);
     })
   }
-
+  memberpic();
 
   
   
-   // getting players from database
-  const data = async () => {
-    console.log("in data")
-    let res = await axios.get('getadminByEmail/'+id)
-    .then((res) => {
-      if (res.data.data !== res.data.data.Prototype){
-        setName(res.data.data.name);
-        setpic(res.data.data.image);
-        console.log(name)
-
-      }})
-    .catch((error) => {
-        console.log(error.response.data);
-        
-    })
-  };
+  
   
   return (
     <div className="flex-col w-full ">
@@ -74,7 +60,7 @@ export default function Selectedgroup(props) {
         {/* center Post */}
         <div className=" w-full overflow-y-scroll scrollbar  mt-10">
          <UploadPostOntimeline newsfeed = {false} name = {name} image = {pic}/>
-          <TimelinePost newsfeed = {false}/>
+          <TimelinePost newsfeed = {false}/> 
         </div>
 
         {/* right side-bar parent profile */}

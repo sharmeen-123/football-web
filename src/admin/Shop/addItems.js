@@ -13,6 +13,7 @@ export default function AddItems() {
   const [url, setUrl] = useState(false);
   const [error, setError] = useState(false);
   const [status, setStatus] = useState(false);
+  const [ItemAdded, setItemAdded] = useState(false)
   let isitem = false;
   const hiddenFileInput = React.useRef(null);
 
@@ -20,8 +21,20 @@ export default function AddItems() {
     hiddenFileInput.current.click();
   };
   const handleChange = (event) => {
-    setImage(event.target.files[0]);
-    img();
+    setImage(event.target.files[0].name);
+    const data = new FormData();
+    data.append("file", event.target.files[0]);
+    data.append("upload_preset","player_image");
+    //data.append("cloud_name","dyapmvalo");
+    axios.post("https://api.cloudinary.com/v1_1/dyapmvalo/image/upload", data)
+    .then((res) => {
+      setUrl(res.data.url)
+      console.log(url)
+    })
+    .catch((err) => {
+      setError("Image is not selected")
+      console.log(err)
+    });
   };
 
   const handleName = (event) => {
@@ -44,25 +57,17 @@ export default function AddItems() {
 
   // uploading image on cloudinary
   const img = () => {
-    const data = new FormData();
-    data.append("file", image);
-    data.append("upload_preset","player_image");
-    //data.append("cloud_name","dyapmvalo");
-    axios.post("https://api.cloudinary.com/v1_1/dyapmvalo/image/upload", data)
-    .then((res) => {
-      setUrl(res.data.url)
-      console.log(url)
-    })
-    .catch((err) => {
-      console.log(err)
-    });
+    
   }
 
   // sending request
   const addItem = async () => {
     let res = await axios.post('/shop/additem', {name : name, price : price, quantity : quantity, image : url, isitem:isitem})
-    .then (
-      setError(false)
+    .then ((res) => {
+      setError(false);
+      setItemAdded(true)
+    }
+      
     )
     .catch((error) => {
         setError(error.response.data);
@@ -143,10 +148,18 @@ export default function AddItems() {
                       </div>
                       {error?(
                 <div>
-                <p className="text-white font-lexend text-sm p-3 text-center">{error}</p>
+                <p className="text-red-600 text-lg text-left">{error}!</p>
                 </div> 
               ):(
                 <>
+                  {image?(
+                <div>
+                <p className="text-white text-lg text-left ml-6">{image}</p>
+                </div> 
+              ):(
+                <>
+                 </>
+              )}
                  </>
               )}
 
@@ -177,14 +190,14 @@ export default function AddItems() {
                           <input className=" ml-3 text-md w-full placeholder-lexend text-white placeholder-gray-400 bg-[#212121] p-4"
                             type={"number"}
                             step={".1"}
-                            placeholder="500.56" 
+                            placeholder="price" 
                             onChange = {handlePrice}/>
                         </div>
                         <div className="flex-1  text-md text-[#7E7E7E] ml-2">
                           <input className=" ml-3 text-md w-full  placeholder-lexend text-white placeholder-gray-400 bg-[#212121] p-4"
                             type={"number"}
 
-                            placeholder="45" 
+                            placeholder="quantity" 
                             onChange = {handleQuantity}/>
                             
                         </div>
@@ -215,6 +228,49 @@ export default function AddItems() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* add group popup */}
+<div
+        id="defaultModal"
+        
+        class={
+          !ItemAdded
+            ? "hidden"
+            : " flex absolute top-0 right-0 left-0 z-50 w-full h-full  bg-black/70  bg-opacity-5 justify-center items-center"
+        }
+      >
+        <div class="relative p-4 w-full max-w-lg ">
+          <div class="relative bg-gradient-to-r from-[#000000]/24 to-[#000000]/81 backdrop-blur-[5px]  border-[border] border-2   rounded-2xl px-4 py-2">
+            <button
+              onClick={() => setItemAdded(false)}
+              type="button"
+              class="text-gray-400 bg-white bg-transparent rounded-full  p-0.5 ml-auto flex items-center "
+            >
+              <svg
+                aria-hidden="true"
+                class="w-5 h-5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </button>
+            <div className="pt-20 pb-20">
+            <h3 class="text-lg mt-4 mb-4 text-center font-normal font-lexend text-white">
+              ITEM ADDED!
+            </h3>
+            </div>
+              
+          </div>
+        </div>
+
+        
       </div>
     </>
   );

@@ -35,18 +35,21 @@ export default function GroupMembers() {
 
   // find admin name
   const adminname = () => {
-    Group.members.map((val,ind) => {
-      if (val.email  === id){
-        setName(val.name)
-      }
-    })
+    if (Group.members){
+      Group.members.map((val,ind) => {
+        if (val.email  === id){
+          setName(val.name)
+        }
+      })
+    }
+    
   }
   
  
   return (
     <>
       <div className="">
-        {Group !== false? (<>
+        {Group? (<>
 
           <div className="flex justify-end">
           <svg
@@ -107,7 +110,8 @@ export default function GroupMembers() {
                   />
                 </svg>
               </div>
-              {Group.members.map((val, ind) => {
+              {Group.members?(<>
+                {Group.members.map((val, ind) => {
                 
                 return (
                   <div className="flex items-center font-lexend  mb-6">
@@ -140,6 +144,8 @@ export default function GroupMembers() {
                   </div>
                 );
               })}
+              </>):(<></>)}
+              
             </div>
 
             <div>

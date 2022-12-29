@@ -51,7 +51,7 @@ export default function Items() {
   }
   
   const checkNames = (val) => {
-      if (val.name.includes(searchItem)){
+      if (val.name.toUpperCase().includes(searchItem.toUpperCase())){
         return val.name;
       }
   }
@@ -128,11 +128,12 @@ const Item = (ind) => {
                     <input
                         type="text"
                         class="bg-[#212121]  text-white  text-sm rounded-lg block w-full pl-10 p-2.5   border-gray-600 placeholder-gray-400  focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Search Orders"
+                        placeholder="Search Items"
                         required=""
                         onChange={handleSearchChange}
                     />
                     </div>
+                    <NavLink to="/allItems">
                     <button
                     type="submit"
                     class="inline-flex font-dm items-center font-lexend py-2 px-5 ml-4 text-sm font-normal text-white bg-green-500 rounded-[4px] "
@@ -140,6 +141,8 @@ const Item = (ind) => {
                     >
                     Search
                     </button>
+                    </NavLink>
+                    
 
 
                     </form>

@@ -1,21 +1,13 @@
-import React, {useState, useEffect, useContext} from "react";
+import React, {useState, useEffect} from "react";
 import LeftSideChat from "./LeftSideChat";
 import RightSideChat from "./RightSideChat";
 import "../styles/font.css"
 import '../styles/scrollbar.css'
-import { AuthContext } from "../admin/ActiveUser"
+
 export default function ChatBox(props) {
-  const [date, setDate] = useState(false);
+  var today = new Date(),
+            date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
 
-  // getting messages from database
-  const AllMessages = async () => {
-    console.log(props.chat)
-  }
-
-  useEffect (()=>{
-    AllMessages();
-  },[])
-  //AllMessages();
 
   return (
     <>
@@ -23,13 +15,16 @@ export default function ChatBox(props) {
         <div className="w-full my-6 ">
           {/* Profile OF the User */}
           <div className="flex items-center gap-2 pb-5 px-5 ml-4 border-b border-grey-500">
-            {props.img.toString() !== "false"?(<>
+            {props.to?(<>
+              {props.img.toString() !== "false"?(<>
               <img
               class=" w-16 h-16 rounded-full "
               src={props.img}
               alt="Bonnie image"
             />
             </>):(<><div className="w-16 h-16 rounded-full bg-white"></div></>)}
+            
+            </>):(<></>)}
             
             <div>
               <div className="flex items-center gap-4">
@@ -71,59 +66,39 @@ export default function ChatBox(props) {
               {props.chat.map((val, ind) => {
                 return(
                   <div>
-                    {date.toString() !== val.date.slice(0,10).toString() ? (<>
-                      <DateFunction date={val.date.slice(0,10)} setDate={setDate}/>
-                      
-                      
-                    </>):(<></>)}
 
-                    {/* {date === false}(<>
-
-                      <DateFunction date={val.date.slice(0,10)} setDate={setDate}/>
-                      <div className="text-white">{date}</div>
-                    </>):(
-                    {val.date.slice(0,10).toString() !== date.toString()}(<>
-                      <DateFunction date={val.date.slice(0,10)} setDate={setDate}/>
-                      <div className="text-white">{date}</div>
-                    </>):(<></>)
-                    )
-           */}
-          
-          
-                  
-                    {/* {date !== val.date.slice(0,10)?(<>
-                       <div class="flex items-center py-4 mx-10">
-                    <div class="flex-grow h-px bg-gray-400"></div>
-                    
-                    
-                    <span class="flex-shrink text-base font-dm text-[#ffffff] px-4  font-normal">
-                     {date}
-                     <DateFunction setDate={setDate} newDate={date} date={val.date} setShowDate={setShowDate}/>
-                  
-                    </span>
-
-                    <div class="flex-grow h-px bg-gray-400"></div>
-                  </div>
-   
-                    </>):(<>
-                      <DateFunction newDate={date} setDate={setDate} date={val.date} setShowDate={setShowDate}/>
-                  
-                    </>)} */}
-                    {/* {date?(<>
+                    {ind === 0?(<>
                       <div class="flex items-center py-4 mx-10">
                     <div class="flex-grow h-px bg-gray-400"></div>
                     
                     
                     <span class="flex-shrink text-base font-dm text-[#ffffff] px-4  font-normal">
+                    {date === val.date.slice(0,10)?(<>
                       Today
+                    </>):(<>
+                      {val.date.slice(0,10)}
+                    </>)}
+                    
                     </span>
 
                     <div class="flex-grow h-px bg-gray-400"></div>
                   </div>
-                  </>):(<></>)} */}
+                    </>):(<>
+                      {val.date.slice(0,10).toString() !== props.chat[ind-1].date.slice(0,10).toString()?(<>
+                        <div class="flex items-center py-4 mx-10">
+                    <div class="flex-grow h-px bg-gray-400"></div>
+                    
+                    
+                    <span class="flex-shrink text-base font-dm text-[#ffffff] px-4  font-normal">
+                    
+                    
+                    {val.date.slice(0,10)}
+                    </span>
 
-
-                
+                    <div class="flex-grow h-px bg-gray-400"></div>
+                  </div>
+                      </>):(<></>)}
+                    </>)}
                   
                     {val.myself === true?(<>
                       <div className="mt-5"> 
@@ -154,17 +129,6 @@ export default function ChatBox(props) {
     </>
   );
 }  
-function DateFunction(props){
-  useEffect (()=>{
-    setvalue();
-    
-  },[])
-  const setvalue = () => {
-    props.setDate(props.date)
-    console.log("in date")}
-  return(<>
-      <div className="text-white">{props.date}</div>
-  </>)
-}
+
 
 

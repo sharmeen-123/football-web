@@ -1,13 +1,14 @@
 import React from "react";
 import { useState, useEffect, useContext } from "react";
-import grouplist from "../assets/grouplist.png";
 import "../styles/font.css";
+import { NavLink } from "react-router-dom";
 import axios from '../axios';
 import { AuthContext } from "../admin/ActiveUser";
 
 export default function GroupList() {
   const [groups, setGroup] = useState(false);
   const {id, setActiveId } = useContext(AuthContext);
+  const {group, setActiveGroup } = useContext(AuthContext);
 
   useEffect (()=>{
 
@@ -33,11 +34,13 @@ export default function GroupList() {
         <h4 class="self-center text-lg font-normal font-lexend whitespace-nowrap text-white ">
           Groups
         </h4>
-        <a href="/newsfeed/groups" class="text-sm text-gray-500 ml-auto">All</a>
+        <NavLink to={"/selectgroup"} >
+          <p class="text-sm text-gray-500 ml-auto">All</p></NavLink>
       </div>
       {groups === false ? (<></>) : (<>
         {groups.map((val, ind) => (
-        <a href="/newsfeed/selectedGroup" className="flex gap-4 mb-6 items-center ">
+        <NavLink to={"/selectgroup/groups"}
+        onClick = {() => setActiveGroup(val._id)} className="flex gap-4 mb-6 items-center ">
           <img
             class=" w-16 h-16 rounded-md "
             src={val.pic}
@@ -62,7 +65,7 @@ export default function GroupList() {
               </p>
             </div>
           </div>
-        </a>
+        </NavLink>
       ))}</>)}
       
     </>
