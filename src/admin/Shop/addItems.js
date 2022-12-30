@@ -138,7 +138,7 @@ export default function AddItems() {
                           />
                         </svg>
 
-                        <div className="ml-2"> Upload Group Picture</div>
+                        <div className="ml-2"> Upload Item Picture</div>
                         <input
                           type="file"
                           ref={hiddenFileInput}
@@ -189,7 +189,7 @@ export default function AddItems() {
                         <div className="flex-1">
                           <input className=" ml-3 text-md w-full placeholder-lexend text-white placeholder-gray-400 bg-[#212121] p-4"
                             type={"number"}
-                            step={".1"}
+                            // step={".1"}
                             placeholder="price" 
                             onChange = {handlePrice}/>
                         </div>
