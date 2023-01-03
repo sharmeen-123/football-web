@@ -39,7 +39,7 @@ export default function GroupList() {
       </div>
       {groups === false ? (<></>) : (<>
         {groups.map((val, ind) => (
-        <NavLink to={"/selectgroup/groups"}
+        <NavLink to={"/selectgroup"}
         onClick = {() => setActiveGroup(val._id)} className="flex gap-4 mb-6 items-center ">
           <img
             class=" w-16 h-16 rounded-md "

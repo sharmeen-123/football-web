@@ -1,10 +1,34 @@
 import React from "react";
-import Document from "../assets/Document.png";
+import pic from "../assets/Document.png";
 import "../styles/font.css"
+import {Logger} from 'logging-library'
+import FileViewer from 'react-file-viewer';
+import { CustomErrorComponent } from 'custom-error';
+import axios from '../axios';
+//import DocViewer from "react-doc-viewer";
+import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
 
-import MoreProfiles from "./MoreProfiles";
-import RecentActivityies from "./RecentActivityies";
-export default function ClubhubSidebar() {
+export default function ClubhubSidebar(props) {
+  let ext, type
+  let file = process.env.REACT_APP_API+"/"+props.value.name
+  let name = props.value.name
+    if (name){
+      ext = name.toString().split(".")
+      type = ext.pop()
+      
+      //console.log("filename",ext.pop())
+    }
+
+    const docs = [
+      { uri: file },
+    ];
+
+  console.log("file",file,"ext",type)
+  
+
+  const onError = (e) => {
+    Logger.logError(e, 'error in file-viewer');
+  }
  
   return (
     <div >
@@ -12,16 +36,42 @@ export default function ClubhubSidebar() {
       <div className="">
         <h2 class="self-center font-lexend text-lg font-medium whitespace-nowrap text-white ml-7 mt-8 ">
           File Preview
+          {console.log("preview",file)}
         </h2>
-        <div className="flex grow-0 rounded-[4px] m-2 bg-[#212121] pr-30">
-        <img  src={Document} alt="image not found"/>
-        </div>
+
+        <DocViewer pluginRenderers={DocViewerRenderers} documents={docs} />
+
+        {/* <DocViewer documents={docs} /> */}
+
+        {/* {props.value.name && <FileViewer
+        fileType={type}
+        filePath={file}
+        errorComponent={CustomErrorComponent}
+        onError={onError}/>} */}
+
+
+
+
+
+
+
+
+
+        {/* <object 
+                className="flex grow-0 rounded-[10px] m-2 bg-[#212121] pr-30"
+                data="../../abc.pdf" 
+                type="application/pdf" width="100%" height="100%">
+                <p>Alternative text - include a link 
+                    <a href="../abc.pdf" >
+                    to the PDF!</a>
+                </p>
+        </object> */}
         <div className="flex">
             <div className="flex-1">
             <p class="self-center font-lexend text-lg font-medium whitespace-nowrap text-white ml-7 mt-4 ">
-            Rules and Regulations.pdf
+            {props.value.name}
             </p>
-            <p className="text-white font-lexend ml-7 font-[16px]">file size : 25mb</p>
+            <p className="text-white font-lexend ml-7 font-[16px]">file size : {props.value.size}</p>
             </div>
             <div className="flex-1 grow-0 mt-6">
                 <svg width="21" height="25" viewBox="0 0 21 25" fill="none" xmlns="http://www.w3.org/2000/svg">
