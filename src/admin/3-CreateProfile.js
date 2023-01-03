@@ -161,7 +161,8 @@ export default function AddItems() {
                 </div> 
               ):(
                 <>
-                {image?(
+                {url? (<>
+                  {image?(
                 <div>
                 <p className="text-white text-lg text-left ml-6">{image}</p>
                 </div> 
@@ -169,6 +170,8 @@ export default function AddItems() {
                 <>
                  </>
               )}
+                </>):(<></>)}
+                
                  </>
               )}
             

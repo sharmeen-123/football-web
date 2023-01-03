@@ -1,24 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import pfp from "../assets/pfp.png";
 import pic1 from "../assets/pic1.png"
 import "../styles/font.css"
 import axios from '../axios';
 import Moment from 'react-moment';
+import { AuthContext } from "../admin/ActiveUser"
 export default function RecentActivityies(props) {
   const [post, SetPost] = useState(false);
   const [recent, setRecent] = useState(false);
-  const today = new Date();
+  const {id, setActiveId } = useContext(AuthContext);
   
-  const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-  const time = today.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })
 
 
   // getting all posts
   const memberName = async () => {
-      let res = await axios.get('/newsfeed/getrecentposts')
+    let email = {
+      email : id
+    }
+      let res = await axios.get('/post/getrecentposts', {params:{data:email}})
       .then ( (res) => {
         
         if (res.data.data !== res.data.data.Prototype){
