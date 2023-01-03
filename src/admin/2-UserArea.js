@@ -11,11 +11,17 @@ export default function UserArea() {
   const [staticdata, setStaticData] = useState(false);
   const [openAddsubcatmodal, setopenAddsubcatmodal] = useState(false);
   const [totalPlayers, setTotalPlayers] = useState(0);
+  const [coach, setCoach] = useState(0);
   const [playersJoined, setPlayersJoined] = useState(0);
   const [playersLeft, setPlayersLeft] = useState(0);
   const [searchPlayer, setSearchPlayer] = useState(false);
   const [search, setSearch] = useState(false);
   const [staticdataCopy, setStaticDataCopy] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(false)
+  const[playersPerPage] = useState(10)
+  let next = false
+  let Playerdata;
    // seting value
   const handleSearchChange = (event) => {
     // 👇 Get input value from "event"
@@ -35,12 +41,14 @@ export default function UserArea() {
     .then((res) => {
       if (res.data.data !== res.data.data.Prototype){
         setStaticData(res.data.data);
-
+        Playerdata = res.data.data
+        // setPage(Playerdata)
       }})
     .catch((error) => {
         console.log(error.response.data);
         
     })
+
     let response = await axios.get('/player/totalplayers')
     .then((response) => {
       setTotalPlayers(response.data.totalPlayer)
@@ -51,7 +59,54 @@ export default function UserArea() {
         console.log(error.response.data);
         
     })
+
+    response = await axios.get('/coach/totalCoach')
+    .then((response) => {
+      setCoach(response.data.data)
+      })
+    .catch((error) => {
+        console.log(error.response.data);
+        
+    })
+    setPage(Playerdata)
   };
+
+  const setPage = (data) => {
+    const current = currentPage
+    if(nextPage){
+      // current = current + 1
+    }
+    const indexOfLastPage = current * playersPerPage;
+    const indexOfFirstPage = indexOfLastPage - playersPerPage;
+    let page = []
+    page = data.slice(indexOfFirstPage, indexOfLastPage)
+    setStaticData(page)
+    setTotalPages(Math.ceil(data.length / playersPerPage))
+    console.log("Current pages",currentPage)
+    console.log("Index Of 1st", indexOfFirstPage, "Last Index", indexOfLastPage, "next", next)
+  }
+
+  const nextPage = () => {
+    if (currentPage < totalPages){
+      let current = currentPage
+      setCurrentPage((prev) => (
+         setCurrentPage(prev + 1)
+      ))
+      console.log(currentPage)
+      next = true
+      data()
+    }
+    
+  }
+
+  const backPage = () => {
+    if (currentPage > 1){
+      let current = currentPage
+      setCurrentPage(current-1)
+      data()
+    }
+    
+  }
 
   // searching players
   const searchInPlayer = () => {
@@ -225,7 +280,7 @@ export default function UserArea() {
 
               </div>
               <div className="flex-1 mt-3 mt-8 ml-3">
-                <h1 className="text-3xl font-bold">5</h1>
+                <h1 className="text-3xl font-bold">{coach}</h1>
                 <h3 className="text-lg">Total Coaches</h3>
               </div>
             </div>
@@ -273,7 +328,7 @@ export default function UserArea() {
                     className="py-4 font-medium whitespace-nowrap text-white"
                     onClick={() => setopenAddsubcatmodal(false)} 
                   >
-                    {object._id}
+                    #{index+1}
                   </th>
                   <td className="py-4 ">
                     <div className="flex gap-2 items-center justify-center" onClick={() => closeProfile(index)}>
@@ -450,6 +505,8 @@ export default function UserArea() {
           <h4 className="self-center text-xl font-normal whitespace-nowrap text-white mr-4 my-5 ">
             Page
           </h4>
+          <div
+          onClick={backPage}>
           <svg
             width="11"
             height="19"
@@ -459,12 +516,16 @@ export default function UserArea() {
           >
             <path
               d="M10.3725 0.3675C9.8825 -0.1225 9.0925 -0.1225 8.6025 0.3675L0.2925 8.6775C-0.0975 9.0675 -0.0975 9.6975 0.2925 10.0875L8.6025 18.3975C9.0925 18.8875 9.8825 18.8875 10.3725 18.3975C10.8625 17.9075 10.8625 17.1175 10.3725 16.6275L3.1325 9.3775L10.3825 2.1275C10.8625 1.6475 10.8625 0.8475 10.3725 0.3675Z"
-              fill="#7E7E7E"
+              fill="white"
             />
           </svg>
+          </div>
+          
           <h4 className="self-center text-xl font-normal whitespace-nowrap text-white ml-3 mr-4 my-5 ">
-            1
+            {currentPage}
           </h4>
+          <div
+          onClick={nextPage}>
           <svg
             width="11"
             height="19"
@@ -477,8 +538,10 @@ export default function UserArea() {
               fill="white"
             />
           </svg>
+          </div>
+          
           <h4 className="self-center text-xl font-normal whitespace-nowrap text-white mx-4 my-5 ">
-            out of 22
+            out of {totalPages}
           </h4>
         </div>
       </div>

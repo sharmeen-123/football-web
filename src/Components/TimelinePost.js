@@ -12,48 +12,128 @@ export default function TimelinePost(props) {
   const [post, SetPost] = useState(false)
   const [postreverse, setPostreverse] = useState(false);
   const {group, setActiveGroup } = useContext(AuthContext); 
+  const {id, setActiveId } = useContext(AuthContext);
+  const [likes, setLikes] = useState(false);
+  const [comment, setComment] = useState(false);
   const today = new Date();
+  let arr = [];
   const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
   
 
-
+  const handleCommentChange = (event) => {
+    // 👇 Get input value from "event"
+    setComment(event.target.value);
+    console.log(comment)
+  };
 
 
    // getting all posts
    const memberName = async () => {
+    let from;
     if (props.newsfeed){
-      let res = await axios.get('/newsfeed/getnewsfeed')
+      from = {from : "newsfeed"}}
+      else {
+        from = {from : group}
+      }
+      let res = await axios.get('/post/getpost', {params:{data:from}})
       .then ( (res) => {
         
         if (res.data.data !== res.data.data.Prototype){
           let member = (res.data.data);
-          SetPost(member.reverse());
-         
+          
+          let posts = []
+          member.map((val, ind) => {
+            getComment(val)
+            //console.log(likes, val._id)
+          })
+          
+          console.log("posts reverse",arr.reverse())
         }
         }
       )
       .catch((error) => {
           console.log(error);
       })
-    }
-    else {
-      let res = await axios.get('/groups/getgroupbyId/'+group)
-    .then ( (res) => {
-      
-      if (res.data.data !== res.data.data.Prototype){
-        let member = (res.data.data.posts);
-        SetPost(member.reverse());
-       
-      }
-      }
-    )
-    .catch((error) => {
-        console.log(error);
-    })
-    }
+    
+    
     
   }
-  memberName();
+  useEffect (()=>{
+    memberName();
+  },[])
+  //memberName();
+
+  // get comments
+  const getComment = async (val) => {
+    let data  = {type:"newsfeed", refOfPost:val._id}
+    let likes, isLiked, comment
+    let res = await axios.get('/likes/getLikes',{params:{data:data}})
+    .then((res) => {
+      likes = res.data.data
+      })
+
+    let res2 = await axios.get('/comment/getcomment',{params:{data:data}})
+      .then((res2) => {
+        comment = res2.data.data
+      })
+        // res = await axios.get('/likes/getLikes',{params:{data:data}})
+        // .then((res) => {
+        //   likes = res.data.data
+        //   })
+    
+      //console.log(val)
+    data  = {type:"newsfeed", UserRef:id, refOfPost: val._id}
+    let response = await axios.get('/likes/personComment',{params:{data:data}})
+    .then((response) => {
+      isLiked = response.data.data
+      console.log("isliked", isLiked)
+      })
+      const posts = {
+        post : val,
+        likes : {
+            likes: likes,
+            isLiked : isLiked},
+        comment : comment
+      }
+      setLikes(posts)
+      // if()
+      //arr = [...post]
+      arr.push(posts)
+      SetPost(arr);
+      console.log("likes",likes, "posts",arr)
+      
+    
+  }
+
+  const addLike = async (val) => {
+    console.log("add likes", val)
+    let response = await axios.post('/likes/addLikes',{type:"newsfeed", UserRef:id, refOfPost: val.post._id})
+    .then((response) => {
+      console.log("liked")
+      memberName();
+    })
+  }
+
+  const deleteLike = async (val) => {
+    console.log("delete likes", val)
+    const data = {type:"newsfeed", UserRef:id, refOfPost: val.post._id}
+    let response = await axios.delete('/likes/removeLikes',{params:{data:data}})
+    .then((response) => {
+      console.log("like removed")
+      memberName();
+    })
+  }
+
+  const AddComment = async(val) => {
+    console.log("in add comment",val, comment)
+    let response = await axios.post('/comment/addcomment',{type:"newsfeed", Comment:comment, UserRef:id, refOfPost: val.post._id})
+    .then((response) => {
+      console.log("commented")
+      memberName();
+    })
+  }
+
+ 
 
   return (
     <div className="">
@@ -67,22 +147,22 @@ export default function TimelinePost(props) {
       {/* if post img */}
       <div class="mt-5 px-4 pb-2 font-lexend lg:w-full 2xl:w-[880px] min-w-sm text-center bg-[#212121] rounded-lg  ">
           <div className="flex items-center gap-2  mb-8 ml-4">
-            {val.post.image_post ? (<>
+            {val.post.post.image_post ? (<>
               <img
               class=" mt-[34px] w-9 h-9 rounded-full "
-              src={val.post.image_post}
+              src={val.post.post.image_post}
               alt="Bonnie image"
             /></>) : (<>
             <div class=" mt-[34px] w-9 h-9 rounded-full bg-white"></div></>)}
             
             <div className="mt-[31px]">
               <p class="font-lexend font-normal text-left text-xs text-gray-400">
-                {val.post.email}
+                {val.post.post.email}
               </p>
               <div className="flex font-lexend mt-1  items-center gap-4">
-                {val.post.name ? (<>
+                {val.post.post.name ? (<>
                   <h5 class="text-base  font-normal tracking-tight text-white">
-                  {val.post.name}
+                  {val.post.post.name}
                 </h5></>) : (<></>)}
                 
                 <svg
@@ -96,7 +176,7 @@ export default function TimelinePost(props) {
                 </svg>
 
                 <h5 class=" text-sm font-light tracking-tight text-white">
-                <Moment fromNow>{val.post.date}</Moment>
+                <Moment fromNow>{val.post.post.date}</Moment>
                         </h5>
   
               </div>
@@ -115,20 +195,20 @@ export default function TimelinePost(props) {
               />
             </svg>
           </div>
-          {val.post.newpost?(<>
+          {val.post.post.newpost?(<>
             
           <p className="font-lexend p-4 font-normal leading-8 justify-between text-base text-start text-white/70 ">
-            {val.post.newpost}
+            {val.post.post.newpost}
           </p>
           </>):(<></>)}
 
-          {val.post.image?(<>
+          {val.post.post.image?(<>
             <img className="mt-5 px-2 w-full rounded-md" 
-            src={val.post.image} />
+            src={val.post.post.image} />
             </>):(<></>)}
           
           
-          {val.post.video_url?(<>
+          {val.post.post.video_url?(<>
             <div className="mt-5 pr-12 px-2 ml-2  w-full">
             <video className="mt-5 px-2 w-full rounded-md" controls>
             <source src={val.post.video_url} type="video/mp4"/>
@@ -137,6 +217,8 @@ export default function TimelinePost(props) {
           </>):(<></>)}
           
           <div className="flex gap-2 mt-3 py-5 ml-6 border-b border-grey-500">
+            {val.likes.isLiked?(<>
+            <div onClick={() => deleteLike(val)}>
             <svg
               width="20"
               height="20"
@@ -149,7 +231,27 @@ export default function TimelinePost(props) {
                 fill="#BE1931"
               />
             </svg>
-            <h5 class="text-base pr-4 font-bold tracking-tight text-white">25</h5>
+            </div>
+              
+            </>):(<>
+            <div onClick={() => addLike(val)}>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 32 29"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M32 9.13888C32 4.26329 28.0476 0.310926 23.1729 0.310926C20.2136 0.310926 17.6022 1.77181 16 4.00475C14.3987 1.77181 11.7864 0.310926 8.82796 0.310926C3.95236 0.310926 0 4.26329 0 9.13888C0 9.82952 0.0876713 10.4987 0.237965 11.1437C1.46447 18.7586 9.931 26.7939 16 29C22.0681 26.7939 30.5364 18.7586 31.7602 11.1437C31.9123 10.4987 32 9.82952 32 9.13888Z"
+                fill="white"
+              />
+            </svg>
+            </div>
+              
+            </>)}
+            
+            <h5 class="text-base pr-4 font-bold tracking-tight text-white">{val.likes.likes}</h5>
             <svg
               width="20"
               height="20"
@@ -163,7 +265,7 @@ export default function TimelinePost(props) {
               />
             </svg>
             <h5 class="text-base font-bold tracking-tight text-white">
-              5 Comments
+              {val.comment} Comments
             </h5>
             <svg
               className="ml-auto"
@@ -181,10 +283,10 @@ export default function TimelinePost(props) {
             <h5 class="text-base font-bold tracking-tight text-white">Share</h5>
           </div>
           <div className=" flex gap-4 pl-4 mt-4 mb-4">
-          {val.post.image_post ? (<>
-              <img
+          {val.post.post.image_post ? (<>
+          <img
               class=" mt-[2px] w-5 h-5 rounded-full "
-              src={val.post.image_post}
+              src={val.post.post.image_post}
               alt="Bonnie image"
             /></>) : (<>
             <div class=" mt-[2px] w-9 h-9 rounded-full bg-white"></div></>)}
@@ -193,8 +295,17 @@ export default function TimelinePost(props) {
               class="w-full bg-[#1A1A1A]  text-white text-sm rounded-2xl block  pl-10 p-2.5  dark:placeholder-gray-400 "
               placeholder="write comment"
               required=""
+              onChange={handleCommentChange}
             />
+            <div className="mt-[10px]"
+            onClick={() =>AddComment(val)}>
+          <svg width="24" height="22" viewBox="0 0 24 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2.48647 12.7028L9.95408 11.2092C10.6209 11.076 10.6209 10.8592 9.95408 10.726L2.48647 9.23244C2.04167 9.14364 1.60847 8.71004 1.51967 8.26564L0.0260634 0.798029C-0.107537 0.130828 0.285664 -0.179173 0.903665 0.106027L23.6913 10.6232C24.1029 10.8132 24.1029 11.122 23.6913 11.312L0.903665 21.8293C0.285664 22.1145 -0.107537 21.8045 0.0260634 21.1373L1.51967 13.6696C1.60847 13.2252 2.04167 12.7916 2.48647 12.7028Z" fill="white"/>
+          </svg>
+
           </div>
+          </div>
+          
         </div>
       
 

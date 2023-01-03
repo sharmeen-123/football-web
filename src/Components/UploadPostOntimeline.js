@@ -71,7 +71,9 @@ export default function UploadPostOntimeline(props) {
                     image : img,
                     date : date,
                 name: props.name,
-              email : id};
+              email : id,
+            likes : 0,
+          comments : false};
               setPost(posts)
     if (post.newpost || post.video_url || post.image ){
      
@@ -94,7 +96,7 @@ export default function UploadPostOntimeline(props) {
   // sending post
   const sendPost = async () => {
     if (props.newsfeed){
-      let res = await axios.post('/newsfeed/posts', {post : post})
+      let res = await axios.post('/post/posts', {post : post, from : "newsfeed"})
     .then ((res) => {
       console.log("post send")
       setpostt(false)
@@ -108,7 +110,7 @@ export default function UploadPostOntimeline(props) {
     })
     }
     else{
-      let res = await axios.put('/groups/UploadPost/'+group, {post : post})
+      let res = await axios.post('/post/posts', {post : post, from:group})
       .then ((res) => {
         console.log("post send")
         setpostt(false)
